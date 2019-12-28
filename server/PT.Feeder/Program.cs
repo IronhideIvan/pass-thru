@@ -1,6 +1,6 @@
 ﻿using System;
 using PT.Common;
-using PT.vJoy;
+using PT.vJoyFeeder;
 
 namespace PT.Feeder
 {
@@ -10,13 +10,15 @@ namespace PT.Feeder
     {
       RegisterServices();
 
-      Console.WriteLine("Hello World!");
+      var feeder = ServiceProvider.Get<IFeeder>();
+      feeder.Test();
       Console.ReadKey();
     }
 
     static void RegisterServices()
     {
       var provider = ServiceProvider.Instance;
+      provider.RegisterSingleton<ILogger, Logger>();
       provider.RegisterSingleton<IFeeder, VJoyFeeder>();
     }
   }

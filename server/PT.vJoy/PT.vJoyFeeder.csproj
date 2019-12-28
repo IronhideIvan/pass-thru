@@ -1,17 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PT.Common\PT.Common.csproj" />
-    <ProjectReference Include="..\PT.vJoy\PT.vJoyFeeder.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="vJoyInterfaceWrap">
+      <HintPath>lib\vJoy\x86\vJoyInterfaceWrap.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /Y &quot;$(SolutionDir)PT.vJoy\lib\vJoy\x64\vJoyInterface.dll&quot; &quot;$(TargetDir)vJoyInterface.dll&quot;" />
+    <Exec Command="copy /Y &quot;$(ProjectDir)lib\vJoy\x64\vJoyInterface.dll&quot; &quot;$(TargetDir)vJoyInterface.dll&quot;" />
   </Target>
 
 </Project>

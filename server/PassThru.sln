@@ -5,11 +5,13 @@ VisualStudioVersion = 15.0.28307.539
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PT.Feeder", "PT.Feeder\PT.Feeder.csproj", "{C85DDA0E-466B-496D-80AA-3A638823CD70}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PT.vJoy", "PT.vJoy\PT.vJoy.csproj", "{BE509CD7-D394-49D8-BC90-2DC1AA1AE520}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PT.vJoyFeeder", "PT.vJoy\PT.vJoyFeeder.csproj", "{BE509CD7-D394-49D8-BC90-2DC1AA1AE520}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PT.Common", "PT.Common\PT.Common.csproj", "{2239E170-1E37-49A5-A316-7013B3F85736}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PT.WebApi", "PT.WebApi\PT.WebApi.csproj", "{76E9ED90-11C6-4BD0-9ABE-0CAD5E39C363}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{D7E99831-7804-4802-8CAB-E0355C606608}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{76E9ED90-11C6-4BD0-9ABE-0CAD5E39C363}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76E9ED90-11C6-4BD0-9ABE-0CAD5E39C363}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76E9ED90-11C6-4BD0-9ABE-0CAD5E39C363}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7E99831-7804-4802-8CAB-E0355C606608}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7E99831-7804-4802-8CAB-E0355C606608}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7E99831-7804-4802-8CAB-E0355C606608}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7E99831-7804-4802-8CAB-E0355C606608}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

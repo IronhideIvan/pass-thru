@@ -30,8 +30,7 @@ namespace PT.Common
     private Dictionary<string, Func<object>> _transients = new Dictionary<string, Func<object>>();
 
     public void RegisterSingleton<TInterface, TImplementation>()
-      // Godot does not like that there are two 'where' clauses here
-      // where TInterface : class
+      where TInterface : class
       where TImplementation : class, TInterface, new()
     {
       string interfaceName = typeof(TInterface).Name;
@@ -43,7 +42,7 @@ namespace PT.Common
     }
 
     public void RegisterTransient<TInterface, TImplementation>()
-      // where TInterface : class
+      where TInterface : class
       where TImplementation : class, TInterface, new()
     {
       string interfaceName = typeof(TInterface).Name;
