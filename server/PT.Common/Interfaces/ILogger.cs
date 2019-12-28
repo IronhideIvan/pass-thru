@@ -6,19 +6,21 @@ namespace PT.Common
 {
   public enum LogLevel
   {
-    Debug = 1,
-    Info = 2,
-    Warning = 3,
-    Error = 4
+    Error = 1,
+    Warning = 2,
+    Info = 3,
+    Debug = 4
   }
 
-  public interface ILogger
+  public interface IAppLogger
   {
+    LogLevel LogLevel { get; }
     void Log(string message, LogLevel level);
     void Debug(string message);
     void Info(string message);
     void Warn(string message);
     void Error(string message);
-    ILogger Configure(Type source);
+    IAppLogger Configure(Type source);
+    IAppLogger GlobalConfig(LogLevel level);
   }
 }

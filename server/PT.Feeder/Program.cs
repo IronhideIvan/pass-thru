@@ -8,26 +8,40 @@ namespace PT.Feeder
   {
     static void Main(string[] args)
     {
+      StartupModes mode = StartupModes.Sample;
+      if (args != null || args.Length > 0)
+      {
+        mode = StartupModes.UDP;
+      }
       RegisterServices();
 
-      var logger = ServiceProvider.Get<ILogger>().Configure(typeof(Program));
-      var feeder = ServiceProvider.Get<IFeeder>();
+      var logger = ServiceProvider.Get<IAppLogger>()
+        .Configure(typeof(Program))
+        .GlobalConfig(LogLevel.Debug);
+
       try
       {
-        feeder.Connect("1");
+        if (mode == StartupModes.Sample)
+        {
+          new SampleModeRunner().Run(args);
+        }
+        else
+        {
+          new UdpModeRunner().Run(args);
+        }
       }
       catch (Exception ex)
       {
         logger.Error(ex.Message);
       }
-      Console.ReadKey();
     }
 
     static void RegisterServices()
     {
       var provider = ServiceProvider.Instance;
-      provider.RegisterTransient<ILogger, ConsoleLogger>();
+      provider.RegisterTransient<IAppLogger, ConsoleLogger>();
       provider.RegisterTransient<IFeeder, VJoyFeeder>();
+      provider.RegisterTransient<IUdpSocket, UdpSocket>();
     }
   }
 }

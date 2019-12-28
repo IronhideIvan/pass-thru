@@ -3,17 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using PT.Common;
 
-namespace PassThru.ClientWebServer.Controllers
+namespace PT.WebApi.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
   public class ValuesController : ControllerBase
   {
+    private readonly IUdpSocket _udpSocket;
+
+    public ValuesController(IUdpSocket udpSocket)
+    {
+      _udpSocket = udpSocket;
+    }
+
     // GET api/values
     [HttpGet]
     public ActionResult<IEnumerable<string>> Get()
     {
+      _udpSocket.InitializeClient("127.0.0.1", 7084, null);
+      _udpSocket.Send("Test!");
       return new string[] { "value1", "value2" };
     }
 

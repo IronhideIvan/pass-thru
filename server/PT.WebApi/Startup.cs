@@ -10,8 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PT.WebApi.Services;
+using PT.Common;
 
-namespace PassThru.ClientWebServer
+namespace PT.WebApi
 {
   public class Startup
   {
@@ -25,7 +27,14 @@ namespace PassThru.ClientWebServer
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
-      services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+      services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+      services.AddTransient<IAppLogger, DatabaseLogger>();
+      services.AddTransient<IUdpSocket, UdpSocket>();
+
+      // Need a separate service provider for some PT.Common libraries
+      var provider = Common.ServiceProvider.Instance;
+      provider.RegisterTransient<IAppLogger, DatabaseLogger>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,7 +50,7 @@ namespace PassThru.ClientWebServer
         app.UseHsts();
       }
 
-      app.UseHttpsRedirection();
+      // app.UseHttpsRedirection();
       app.UseMvc();
     }
   }

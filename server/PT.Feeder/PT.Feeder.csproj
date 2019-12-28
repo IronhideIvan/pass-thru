@@ -10,8 +10,14 @@
     <ProjectReference Include="..\PT.vJoy\PT.vJoyFeeder.csproj" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /Y &quot;$(SolutionDir)PT.vJoy\lib\vJoy\x64\vJoyInterface.dll&quot; &quot;$(TargetDir)vJoyInterface.dll&quot;" />
-  </Target>
+  <ItemGroup>
+    <Content Include="..\PT.vJoy\lib\vJoy\x64\vJoyInterface.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>  
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
 
 </Project>

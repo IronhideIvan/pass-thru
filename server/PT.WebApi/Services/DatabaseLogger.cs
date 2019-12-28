@@ -1,9 +1,9 @@
 ﻿using PT.Common;
 using System;
 
-namespace PT.Feeder
+namespace PT.WebApi.Services
 {
-  internal class ConsoleLogger : IAppLogger
+  internal class DatabaseLogger : IAppLogger
   {
     private static LogLevel _level = LogLevel.Error;
     private Type _source;

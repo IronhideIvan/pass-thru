@@ -6,7 +6,7 @@ namespace PT.vJoyFeeder
 {
   public class VJoyFeeder : IFeeder
   {
-    private static readonly ILogger _logger = ServiceProvider.Get<ILogger>().Configure(typeof(VJoyFeeder));
+    private static readonly IAppLogger _logger = ServiceProvider.Get<IAppLogger>().Configure(typeof(VJoyFeeder));
 
     private vJoy _joystick;
     private vJoy.JoystickState _report;
@@ -87,6 +87,22 @@ namespace PT.vJoyFeeder
       }
 
       PrintDeviceSupport();
+    }
+
+    public void Feed(InputReport inputReport)
+    {
+      // Validation
+      if (_joystick == null || _deviceId < 1)
+      {
+        throw new PTGenericException("vJoy not initialized. Cannot feed inputs.");
+      }
+
+      _report.Buttons = (uint)inputReport.Buttons;
+
+      if (!_joystick.UpdateVJD(_deviceId, ref _report))
+      {
+        throw new PTGenericException($"Failed to feed vJoy device number '{_deviceId}'. Try reconnecting the device.");
+      }
     }
 
     private void PrintDeviceSupport()
