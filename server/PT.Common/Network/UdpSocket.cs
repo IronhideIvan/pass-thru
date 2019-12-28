@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace PT.Common
 {
-  public interface IUdpSocket
+  public interface IUdpSocket : IDisposable
   {
     void InitializeServer(string address, int port, Action<string> callback);
     void InitializeClient(string address, int port, Action<string> callback);
@@ -37,7 +39,7 @@ namespace PT.Common
 
     public void InitializeClient(string address, int port, Action<string> callback)
     {
-      _socket.Connect(IPAddress.Parse(address), port);
+      _socket.Connect(new IPEndPoint(IPAddress.Parse(address), port));
       Receive(callback);
     }
 
@@ -74,5 +76,32 @@ namespace PT.Common
         }
       }, state);
     }
+
+    #region IDisposable Support
+    private bool _isDisposed = false; // To detect redundant calls
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!_isDisposed)
+      {
+        if (disposing)
+        {
+          _socket?.Dispose();
+        }
+
+        _isDisposed = true;
+      }
+    }
+
+    ~UdpSocket()
+    {
+      Dispose(false);
+    }
+
+    public void Dispose()
+    {
+      Dispose(true);
+    }
+    #endregion
   }
 }

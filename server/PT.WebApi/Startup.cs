@@ -30,11 +30,11 @@ namespace PT.WebApi
       services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
       services.AddTransient<IAppLogger, DatabaseLogger>();
-      services.AddTransient<IUdpSocket, UdpSocket>();
 
       // Need a separate service provider for some PT.Common libraries
       var provider = Common.ServiceProvider.Instance;
       provider.RegisterTransient<IAppLogger, DatabaseLogger>();
+      provider.RegisterTransient<IUdpSocket, UdpSocket>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

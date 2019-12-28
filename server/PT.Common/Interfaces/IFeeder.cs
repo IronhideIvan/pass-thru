@@ -7,5 +7,6 @@ namespace PT.Common
   public interface IFeeder
   {
     void Connect(string deviceId);
+    void Feed(InputReport inputReport);
   }
 }

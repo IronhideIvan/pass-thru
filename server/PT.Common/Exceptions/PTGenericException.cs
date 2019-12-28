@@ -9,5 +9,10 @@ namespace PT.Common
     public PTGenericException(string message) : base(message)
     {
     }
+
+    public PTGenericException(string message, Exception inner) : base(message, inner)
+    {
+
+    }
   }
 }
