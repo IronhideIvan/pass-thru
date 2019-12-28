@@ -10,16 +10,24 @@ namespace PT.Feeder
     {
       RegisterServices();
 
+      var logger = ServiceProvider.Get<ILogger>().Configure(typeof(Program));
       var feeder = ServiceProvider.Get<IFeeder>();
-      feeder.Test();
+      try
+      {
+        feeder.Connect("1");
+      }
+      catch (Exception ex)
+      {
+        logger.Error(ex.Message);
+      }
       Console.ReadKey();
     }
 
     static void RegisterServices()
     {
       var provider = ServiceProvider.Instance;
-      provider.RegisterSingleton<ILogger, Logger>();
-      provider.RegisterSingleton<IFeeder, VJoyFeeder>();
+      provider.RegisterTransient<ILogger, ConsoleLogger>();
+      provider.RegisterTransient<IFeeder, VJoyFeeder>();
     }
   }
 }

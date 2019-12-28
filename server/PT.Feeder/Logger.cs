@@ -3,8 +3,10 @@ using System;
 
 namespace PT.Feeder
 {
-  internal class Logger : ILogger
+  internal class ConsoleLogger : ILogger
   {
+    private Type _source;
+
     public void Debug(string message)
     {
       Log(message, LogLevel.Debug);
@@ -28,6 +30,12 @@ namespace PT.Feeder
     public void Log(string message, LogLevel level)
     {
       Console.WriteLine(message);
+    }
+
+    public ILogger Configure(Type source)
+    {
+      _source = source;
+      return this;
     }
   }
 }

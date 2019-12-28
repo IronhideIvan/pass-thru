@@ -6,6 +6,6 @@ namespace PT.Common
 {
   public interface IFeeder
   {
-    void Test();
+    void Connect(string deviceId);
   }
 }
