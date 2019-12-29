@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 class ControllerViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "Connect to and manage your controller"
+        value = "connect to and manage your controller"
     }
     val text: LiveData<String> = _text
 }

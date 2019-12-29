@@ -1,7 +1,6 @@
 package com.passthru.android.ui.dashboard
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -73,9 +72,7 @@ class ConfigFragment : Fragment() {
                 editor.apply()
             }
 
-            UdpHelper._ipAddress = ipAddress
-            UdpHelper._port = portNumber
-            UdpHelper.sendUdp("{\"Buttons\":4}")
+            UdpHelper.connect(ipAddress, portNumber)
             Toast.makeText(context, "Connected", Toast.LENGTH_SHORT).show()
         }
 
