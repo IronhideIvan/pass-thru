@@ -3,17 +3,12 @@ package com.passthru.android.util
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
-import com.google.gson.Gson
 import java.io.Serializable
-import java.security.Key
-import kotlin.math.log
 
 class InputHelper {
     fun convert(e: KeyEvent, report: InputReport): InputReport{
-        val pte = InputReport()
-
-        var buttonId: Int = 0
-        var keyHandled: Boolean = true
+        var buttonId = 0
+        var keyHandled = true
 
         when(e.keyCode){
             KeyEvent.KEYCODE_DPAD_UP -> buttonId = 1
@@ -43,10 +38,10 @@ class InputHelper {
         }
 
         if(keyHandled){
-            if(e.action === KeyEvent.ACTION_UP && report.buttons.or(buttonId) === buttonId){
+            if(e.action == KeyEvent.ACTION_UP && report.buttons.and(buttonId) == buttonId){
                 report.buttons -= buttonId;
             }
-            else if(e.action === KeyEvent.ACTION_DOWN && report.buttons.and(buttonId) === 0){
+            else if(e.action == KeyEvent.ACTION_DOWN && report.buttons.and(buttonId) == 0){
                 report.buttons += buttonId;
             }
         }
