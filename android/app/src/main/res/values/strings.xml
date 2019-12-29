@@ -5,8 +5,8 @@
     <string name="title_notifications">Debugging</string>
     <string name="config_ip_address">IP Address</string>
     <string name="config_port">Port Number</string>
-    <string name="config_test">Connect</string>
+    <string name="config_test">Save</string>
     <string name="config_test_success">Success!</string>
     <string name="config_test_fail">Failed!</string>
-    <string name="config_disconnect">Disconnect</string>
+    <string name="config_disconnect">Clear</string>
 </resources>
