@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PT.Common
@@ -50,10 +51,10 @@ namespace PT.Common
       {
         State so = (State)ar.AsyncState;
         int bytes = _socket.EndSend(ar);
-        if (LogLevel.Debug <= _logger.LogLevel)
-        {
-          _logger.Debug($"SEND: {bytes}, {payload}");
-        }
+        // if (LogLevel.Debug <= _logger.LogLevel)
+        // {
+        //   _logger.Debug($"SEND: {bytes}, {payload}");
+        // }
       }, state);
     }
 
@@ -63,17 +64,20 @@ namespace PT.Common
       {
         State so = (State)ar.AsyncState;
         int bytes = _socket.EndReceiveFrom(ar, ref epFrom);
-        _socket.BeginReceiveFrom(so.buffer, 0, bufSize, SocketFlags.None, ref epFrom, recv, so);
 
         string payload = Encoding.ASCII.GetString(so.buffer, 0, bytes);
         if (LogLevel.Debug <= _logger.LogLevel)
         {
-          _logger.Debug($"RECV: {epFrom.ToString()}: {bytes}, {payload}");
+          // _logger.Debug($"RECV: {epFrom.ToString()}: {bytes}, {payload}");
+          // _logger.Debug($"RECV: {DateTime.Now.TimeOfDay.TotalMilliseconds.ToString()}");
         }
         if (callback != null)
         {
           callback(payload);
         }
+
+        Thread.Sleep(10);
+        _socket.BeginReceiveFrom(so.buffer, 0, bufSize, SocketFlags.None, ref epFrom, recv, so);
       }, state);
     }
 

@@ -1,6 +1,7 @@
 using System;
 using PT.Common;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace PT.Feeder
 {
@@ -21,6 +22,7 @@ namespace PT.Feeder
       _logger.Info($"UDP Server Initialized on {parsedArgs.UdpAddress}:{parsedArgs.UdpPort}");
       while (Console.ReadLine().ToLower() != "exit")
       {
+        Thread.Sleep(1000);
         continue;
       }
     }
@@ -29,6 +31,7 @@ namespace PT.Feeder
     {
       try
       {
+        // _logger.Debug(payload);
         var inputReport = JsonConvert.DeserializeObject<InputReport>(payload);
         _feeder.Feed(inputReport);
       }

@@ -2,6 +2,7 @@ package com.passthru.android
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -13,13 +14,16 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.gson.Gson
 import com.passthru.android.ui.notifications.DebuggerFragment
 import com.passthru.android.util.*
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     val PREFS_FILENAME = "com.passthru.android.prefs"
     val inputHelper: InputHelper = InputHelper()
-    val inputReport: InputReport = InputReport()
+    var inputReport: InputReport = InputReport()
     val localDebugMode = true
+    val timer = Timer("schedule", true)
+    val queue = LinkedList<InputReport>();
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +44,12 @@ class MainActivity : AppCompatActivity() {
         // Initialize the prefs
         val prefs = getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)
         PrefsHelper.prefs = prefs
+
+        timer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                checkAndSendInputMessage()
+            }
+        }, 1000, 10)
     }
 
     override fun dispatchGenericMotionEvent(ev: MotionEvent?): Boolean {
@@ -47,31 +57,40 @@ class MainActivity : AppCompatActivity() {
             return true
         }
 
-        val pte = inputHelper.convert(ev, inputReport)
+        var pte: InputReport = inputReport;
+
+        (0 until ev.historySize).forEach {i ->
+            pte = inputHelper.convert(ev, pte, i)
+            queue.addLast(pte)
+        }
+
+        pte = inputHelper.convert(ev, inputReport, -1)
+        inputReport = pte
         debugInputReport()
+
+        queue.addLast(pte)
 
         if(!UdpHelper.isConnected()){
             return super.dispatchGenericMotionEvent(ev)
         }
 
-        UdpHelper.sendUdp(toJson(pte))
-
         return true
     }
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
-        if(event == null || event.repeatCount > 0){
+        if(event == null){
             return true
         }
 
         val pte = inputHelper.convert(event, inputReport)
+        inputReport = pte
         debugInputReport()
+
+        queue.addLast(pte)
 
         if(!UdpHelper.isConnected()){
             return super.dispatchKeyEvent(event)
         }
-
-        UdpHelper.sendUdp(toJson(pte))
 
         return true
     }
@@ -86,5 +105,14 @@ class MainActivity : AppCompatActivity() {
     private fun toJson(pte: InputReport): String{
         val gson = Gson()
         return gson.toJson(pte)
+    }
+
+    private fun checkAndSendInputMessage() {
+        if(queue.size > 0) {
+            val pte = queue.removeFirst()
+            pte.messageTimestamp = System.currentTimeMillis()
+//            Log.i("SENT", pte.messageTimestamp.toString())
+            UdpHelper.sendUdp(toJson(pte))
+        }
     }
 }

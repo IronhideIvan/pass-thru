@@ -43,7 +43,7 @@ namespace PT.Feeder
         return;
       }
 
-      Console.WriteLine($"{DateTime.Now.TimeOfDay.ToString()} {level.ToString()}: {message}");
+      Console.WriteLine($"{_source.Name} {DateTime.Now.TimeOfDay.ToString()} {level.ToString()}: {message}");
     }
 
     public IAppLogger Configure(Type source)

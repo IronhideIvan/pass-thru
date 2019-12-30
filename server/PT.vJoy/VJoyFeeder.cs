@@ -1,16 +1,45 @@
 ﻿using PT.Common;
 using System;
 using vJoyInterfaceWrap;
+using Newtonsoft.Json;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace PT.vJoyFeeder
 {
   public class VJoyFeeder : IFeeder
   {
     private static readonly IAppLogger _logger = ServiceProvider.Get<IAppLogger>().Configure(typeof(VJoyFeeder));
+    private readonly ConcurrentQueue<InputReport> _backgroundQueue = new ConcurrentQueue<InputReport>();
 
     private vJoy _joystick;
-    private vJoy.JoystickState _report;
     private uint _deviceId = 0;
+    private Task _backgroundWorker;
+
+    bool _axisX;
+    long _axisMaxX;
+    long _axisMinX;
+    bool _axisY;
+    long _axisMaxY;
+    long _axisMinY;
+    bool _axisZ;
+    long _axisMaxZ;
+    long _axisMinZ;
+    bool _axisRX;
+    long _axisMaxRX;
+    long _axisMinRX;
+    bool _axisRY;
+    long _axisMaxRY;
+    long _axisMinRY;
+    bool _axisRZ;
+    long _axisMaxRZ;
+    long _axisMinRZ;
+    int _nButtons;
+    int _contPovNumber;
+    int _discPovNumber;
+
 
     public void Connect(string deviceId)
     {
@@ -32,7 +61,6 @@ namespace PT.vJoyFeeder
 
       // Initialize the joystick and position structure.
       _joystick = new vJoy();
-      _report = new vJoy.JoystickState();
 
       // Get the driver attributes (Vendor ID, Product ID, Version Number)
       if (!_joystick.vJoyEnabled())
@@ -86,10 +114,34 @@ namespace PT.vJoyFeeder
         _logger.Info($"Acquired: vJoy device number '{_deviceId}'.");
       }
 
+      _axisX = _joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_X);
+      _axisY = _joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_Y);
+      _axisZ = _joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_Z);
+      _axisRX = _joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_RX);
+      _axisRY = _joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_RY);
+      _axisRZ = _joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_RZ);
+      // Get the number of buttons and POV Hat switchessupported by this vJoy device
+      _nButtons = _joystick.GetVJDButtonNumber(_deviceId);
+      _contPovNumber = _joystick.GetVJDContPovNumber(_deviceId);
+      _discPovNumber = _joystick.GetVJDDiscPovNumber(_deviceId);
+
+      _joystick.GetVJDAxisMin(_deviceId, HID_USAGES.HID_USAGE_X, ref _axisMinX);
+      _joystick.GetVJDAxisMax(_deviceId, HID_USAGES.HID_USAGE_X, ref _axisMaxX);
+      _joystick.GetVJDAxisMin(_deviceId, HID_USAGES.HID_USAGE_Y, ref _axisMinY);
+      _joystick.GetVJDAxisMax(_deviceId, HID_USAGES.HID_USAGE_Y, ref _axisMaxY);
+      _joystick.GetVJDAxisMin(_deviceId, HID_USAGES.HID_USAGE_Z, ref _axisMinZ);
+      _joystick.GetVJDAxisMax(_deviceId, HID_USAGES.HID_USAGE_Z, ref _axisMaxZ);
+      _joystick.GetVJDAxisMin(_deviceId, HID_USAGES.HID_USAGE_RX, ref _axisMinRX);
+      _joystick.GetVJDAxisMax(_deviceId, HID_USAGES.HID_USAGE_RX, ref _axisMaxRX);
+      _joystick.GetVJDAxisMin(_deviceId, HID_USAGES.HID_USAGE_RY, ref _axisMinRY);
+      _joystick.GetVJDAxisMax(_deviceId, HID_USAGES.HID_USAGE_RY, ref _axisMaxRY);
+      _joystick.GetVJDAxisMin(_deviceId, HID_USAGES.HID_USAGE_RZ, ref _axisMinRZ);
+      _joystick.GetVJDAxisMax(_deviceId, HID_USAGES.HID_USAGE_RZ, ref _axisMaxRZ);
+
       PrintDeviceSupport();
     }
 
-    public void Feed(InputReport inputReport)
+    public void Feed(InputReport genericReport)
     {
       // Validation
       if (_joystick == null || _deviceId < 1)
@@ -97,36 +149,123 @@ namespace PT.vJoyFeeder
         throw new PTGenericException("vJoy not initialized. Cannot feed inputs.");
       }
 
-      _report.Buttons = (uint)inputReport.Buttons;
-
-      if (!_joystick.UpdateVJD(_deviceId, ref _report))
+      if (_backgroundWorker == null)
       {
-        throw new PTGenericException($"Failed to feed vJoy device number '{_deviceId}'. Try reconnecting the device.");
+        _backgroundWorker = Task.Factory.StartNew(() => BackgroundWorker_DoWork());
+      }
+
+      if (_backgroundWorker.IsFaulted)
+      {
+        throw new PTGenericException(_backgroundWorker.Exception.Message);
+      }
+
+      _backgroundQueue.Enqueue(genericReport);
+    }
+
+    private Action BackgroundWorker_DoWork()
+    {
+      vJoy.JoystickState report = new vJoy.JoystickState();
+      InputReport inputReport;
+      long previousId = long.MinValue;
+      while (true)
+      {
+        if (_backgroundQueue.TryDequeue(out inputReport))
+        {
+          if (previousId > inputReport.MessageTimestamp)
+          {
+            // If we've already processed a message from a future point in time,
+            // then discard this message as it's no longer valid.
+            continue;
+          }
+
+          if (_axisX)
+          {
+            report.AxisX = GetAxisValue(inputReport.Axis1.X, _axisMinX, _axisMaxX);
+          }
+
+          if (_axisY)
+          {
+            report.AxisY = GetAxisValue(inputReport.Axis1.Y, _axisMinY, _axisMaxY);
+          }
+
+          if (_axisZ)
+          {
+            report.AxisZ = GetAxisValue(inputReport.Axis1.Z, _axisMinZ, _axisMaxZ);
+          }
+
+          if (_axisRX)
+          {
+            report.AxisXRot = GetAxisValue(inputReport.Axis2.X, _axisMinRX, _axisMaxRX);
+          }
+
+          if (_axisRY)
+          {
+            report.AxisYRot = GetAxisValue(inputReport.Axis2.Y, _axisMinRY, _axisMaxRY);
+          }
+
+          if (_axisRZ)
+          {
+            report.AxisZRot = GetAxisValue(inputReport.Axis2.Z, _axisMinRZ, _axisMaxRZ);
+          }
+
+          report.Buttons = (uint)inputReport.Buttons;
+
+          // ulong[] buttonArr = new ulong[] { 4, 8 };
+
+          // foreach (var btn in buttonArr)
+          // {
+          //   bool btnSet = (inputReport.Buttons & btn) > 0;
+          //   _joystick.SetBtn(btnSet, _deviceId, (uint)btn);
+          // }
+
+          // _logger.Debug($"SENT: {DateTime.Now.TimeOfDay.TotalMilliseconds.ToString()}");
+
+          if (!_joystick.UpdateVJD(_deviceId, ref report))
+          {
+            throw new PTGenericException($"Failed to feed vJoy device number '{_deviceId}'. Try reconnecting the device.");
+          }
+
+          Thread.Sleep(10);
+        }
+      }
+    }
+
+    private int GetAxisValue(float axis, long min, long max)
+    {
+      long median = (min + max) / 2;
+      float absAxis = Math.Abs(axis);
+      if (absAxis > 1.0)
+      {
+        absAxis = 1;
+      }
+
+      if (Math.Abs(axis) < 0.001)
+      {
+        return (int)median;
+      }
+      else if (axis < 0)
+      {
+        return (int)(median - (absAxis * median));
+      }
+      else
+      {
+        return (int)((absAxis * median) + median);
       }
     }
 
     private void PrintDeviceSupport()
     {
-      // Check which axes are supported
-      bool AxisX = _joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_X);
-      bool AxisY = _joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_Y);
-      bool AxisZ = _joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_Z);
-      bool AxisRX = _joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_RX);
-      bool AxisRZ = _joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_RZ);
-      // Get the number of buttons and POV Hat switchessupported by this vJoy device
-      int nButtons = _joystick.GetVJDButtonNumber(_deviceId);
-      int ContPovNumber = _joystick.GetVJDContPovNumber(_deviceId);
-      int DiscPovNumber = _joystick.GetVJDDiscPovNumber(_deviceId);
-
       string output = $"\nvJoy Device {_deviceId} capabilities:\n";
-      output += $"Number of buttons\t\t{_joystick.GetVJDButtonNumber(_deviceId)}\n";
-      output += $"Numner of Continuous POVs\t{_joystick.GetVJDContPovNumber(_deviceId)}\n";
-      output += $"Numner of Descrete POVs\t\t{_joystick.GetVJDDiscPovNumber(_deviceId)}\n";
-      output += $"Axis X\t\t{_joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_X)}\n";
-      output += $"Axis Y\t\t{_joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_Y)}\n";
-      output += $"Axis Z\t\t{_joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_Z)}\n";
-      output += $"Axis Rx\t\t{_joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_RX)}\n";
-      output += $"Axis Rz\t\t{_joystick.GetVJDAxisExist(_deviceId, HID_USAGES.HID_USAGE_RZ)}\n";
+      output += $"Number of buttons\t\t{_nButtons}\n";
+      output += $"Numner of Continuous POVs\t{_contPovNumber}\n";
+      output += $"Numner of Descrete POVs\t\t{_discPovNumber}\n";
+      output += $"Axis | Available | Min | Max";
+      output += $"Axis X | {_axisX} | {_axisMinX} | {_axisMaxX} \n";
+      output += $"Axis Y | {_axisY} | {_axisMinY} | {_axisMaxY} \n";
+      output += $"Axis Z | {_axisZ} | {_axisMinZ} | {_axisMaxZ} \n";
+      output += $"Axis Rx | {_axisRX} | {_axisMinRX} | {_axisMaxRX} \n";
+      output += $"Axis Ry | {_axisRY} | {_axisMinRY} | {_axisMaxRY} \n";
+      output += $"Axis Rz | {_axisRZ} | {_axisMinRZ} | {_axisMaxRZ} \n";
 
       _logger.Debug(output);
     }

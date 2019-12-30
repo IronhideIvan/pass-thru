@@ -9,7 +9,7 @@ namespace PT.Feeder
     static void Main(string[] args)
     {
       StartupModes mode = StartupModes.Sample;
-      if (args != null || args.Length > 0)
+      if (args != null && args.Length > 0)
       {
         mode = StartupModes.UDP;
       }

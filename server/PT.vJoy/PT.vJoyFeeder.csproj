@@ -14,6 +14,10 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy /Y &quot;$(ProjectDir)lib\vJoy\x64\vJoyInterface.dll&quot; &quot;$(TargetDir)vJoyInterface.dll&quot;" />
   </Target>

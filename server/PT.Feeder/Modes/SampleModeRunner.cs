@@ -22,11 +22,24 @@ namespace PT.Feeder
       {
         _logger.Error(ex.Message);
       }
-      Console.ReadKey();
+
+      var report = new InputReport
+      {
+        Axis1 = new Axis(),
+        Axis2 = new Axis()
+      };
 
       try
       {
-        _feeder.Feed(new InputReport { Buttons = 4 });
+        while (true)
+        {
+          report.Buttons = 4;
+          _feeder.Feed(report);
+          System.Threading.Thread.Sleep(20);
+          report.Buttons = 0;
+          _feeder.Feed(report);
+          System.Threading.Thread.Sleep(20);
+        }
       }
       catch (Exception ex)
       {
