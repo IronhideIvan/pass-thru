@@ -11,16 +11,15 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.gson.Gson
-import com.passthru.android.util.InputHelper
-import com.passthru.android.util.InputReport
-import com.passthru.android.util.PrefsHelper
-import com.passthru.android.util.UdpHelper
+import com.passthru.android.ui.notifications.DebuggerFragment
+import com.passthru.android.util.*
 
 class MainActivity : AppCompatActivity() {
 
     val PREFS_FILENAME = "com.passthru.android.prefs"
     val inputHelper: InputHelper = InputHelper()
     val inputReport: InputReport = InputReport()
+    val localDebugMode = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications
+                R.id.navigation_controller, R.id.navigation_config, R.id.navigation_debug
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -44,34 +43,44 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun dispatchGenericMotionEvent(ev: MotionEvent?): Boolean {
-        if(!UdpHelper.isConnected()){
-            return super.dispatchGenericMotionEvent(ev)
-        }
-
         if(ev == null){
             return true
         }
 
         val pte = inputHelper.convert(ev, inputReport)
-        // UdpHelper.sendUdp(toJson(pte))
+        debugInputReport()
+
+        if(!UdpHelper.isConnected()){
+            return super.dispatchGenericMotionEvent(ev)
+        }
+
+        UdpHelper.sendUdp(toJson(pte))
 
         return true
     }
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
-        if(!UdpHelper.isConnected()){
-            return super.dispatchKeyEvent(event)
-        }
-
         if(event == null || event.repeatCount > 0){
             return true
         }
 
         val pte = inputHelper.convert(event, inputReport)
+        debugInputReport()
+
+        if(!UdpHelper.isConnected()){
+            return super.dispatchKeyEvent(event)
+        }
 
         UdpHelper.sendUdp(toJson(pte))
 
         return true
+    }
+
+    private fun debugInputReport(){
+        val frag = Globals.debuggerFragment
+        if(localDebugMode && frag != null && frag is DebuggerFragment){
+            frag.populateDebug(inputReport)
+        }
     }
 
     private fun toJson(pte: InputReport): String{

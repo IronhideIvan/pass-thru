@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -16,4 +17,213 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/lblAxisZ"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/debug_axis_z"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lblAxisY" />
+
+    <TextView
+        android:id="@+id/lblThrottle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/debug_throttle"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lblAxisRz" />
+
+    <TextView
+        android:id="@+id/lblBrake"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/debug_brake"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lblThrottle" />
+
+    <TextView
+        android:id="@+id/lblAxisRX"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="128dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/debug_axis_rx"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/lblAxisX"
+        app:layout_constraintTop_toBottomOf="@+id/text_notifications" />
+
+    <TextView
+        android:id="@+id/lblAxisRY"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="128dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/debug_axis_ry"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/lblAxisY"
+        app:layout_constraintTop_toBottomOf="@+id/lblAxisRX" />
+
+    <TextView
+        android:id="@+id/lblAxisRz"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="128dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/debug_axis_rz"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/lblAxisZ"
+        app:layout_constraintTop_toBottomOf="@+id/lblAxisRY" />
+
+    <TextView
+        android:id="@+id/lblAxisZVal"
+        style="@android:style/Widget.DeviceDefault.Light.TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="N/A"
+        android:textAlignment="textStart"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textDirection="ltr"
+        android:textIsSelectable="false"
+        app:layout_constraintStart_toEndOf="@+id/lblAxisZ"
+        app:layout_constraintTop_toBottomOf="@+id/lblAxisYVal" />
+
+    <TextView
+        android:id="@+id/lblAxisRxVal"
+        style="@android:style/Widget.DeviceDefault.Light.TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:text="N/A"
+        android:textAlignment="textStart"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textDirection="ltr"
+        android:textIsSelectable="false"
+        app:layout_constraintStart_toEndOf="@+id/lblAxisRX"
+        app:layout_constraintTop_toBottomOf="@+id/text_notifications" />
+
+    <TextView
+        android:id="@+id/lblThrottleVal"
+        style="@android:style/Widget.DeviceDefault.Light.TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="N/A"
+        android:textAlignment="textStart"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textDirection="ltr"
+        android:textIsSelectable="false"
+        app:layout_constraintStart_toEndOf="@+id/lblThrottle"
+        app:layout_constraintTop_toBottomOf="@+id/lblAxisRzVal" />
+
+    <TextView
+        android:id="@+id/lblBrakeVal"
+        style="@android:style/Widget.DeviceDefault.Light.TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="N/A"
+        android:textAlignment="textStart"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textDirection="ltr"
+        android:textIsSelectable="false"
+        app:layout_constraintStart_toEndOf="@+id/lblBrake"
+        app:layout_constraintTop_toBottomOf="@+id/lblThrottleVal" />
+
+    <TextView
+        android:id="@+id/lblAxisRyVal"
+        style="@android:style/Widget.DeviceDefault.Light.TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="N/A"
+        android:textAlignment="textStart"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textDirection="ltr"
+        android:textIsSelectable="false"
+        app:layout_constraintStart_toEndOf="@+id/lblAxisRY"
+        app:layout_constraintTop_toBottomOf="@+id/lblAxisRxVal" />
+
+    <TextView
+        android:id="@+id/lblAxisRzVal"
+        style="@android:style/Widget.DeviceDefault.Light.TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="N/A"
+        android:textAlignment="textStart"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textDirection="ltr"
+        android:textIsSelectable="false"
+        app:layout_constraintStart_toEndOf="@+id/lblAxisRz"
+        app:layout_constraintTop_toBottomOf="@+id/lblAxisRyVal" />
+
+    <TextView
+        android:id="@+id/lblAxisX"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/debug_axis_x"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_notifications" />
+
+    <TextView
+        android:id="@+id/lblAxisY"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/debug_axis_y"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lblAxisX" />
+
+    <TextView
+        android:id="@+id/lblAxisXVal"
+        style="@android:style/Widget.DeviceDefault.Light.TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:text="N/A"
+        android:textAlignment="textStart"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textDirection="ltr"
+        android:textIsSelectable="false"
+        app:layout_constraintStart_toEndOf="@+id/lblAxisX"
+        app:layout_constraintTop_toBottomOf="@+id/text_notifications" />
+
+    <TextView
+        android:id="@+id/lblAxisYVal"
+        style="@android:style/Widget.DeviceDefault.Light.TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="N/A"
+        android:textAlignment="textStart"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textDirection="ltr"
+        android:textIsSelectable="false"
+        app:layout_constraintStart_toEndOf="@+id/lblAxisY"
+        app:layout_constraintTop_toBottomOf="@+id/lblAxisXVal" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

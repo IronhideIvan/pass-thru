@@ -3,22 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_controller">
 
     <fragment
-        android:id="@+id/navigation_home"
+        android:id="@+id/navigation_controller"
         android:name="com.passthru.android.ui.home.ControllerFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_controller" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_config"
         android:name="com.passthru.android.ui.dashboard.ConfigFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_config" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_debug"
         android:name="com.passthru.android.ui.notifications.DebuggerFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_debugger" />

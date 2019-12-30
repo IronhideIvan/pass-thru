@@ -9,4 +9,14 @@
     <string name="config_test_success">Success!</string>
     <string name="config_test_fail">Failed!</string>
     <string name="config_disconnect">Clear</string>
+    <string name="debug_axis_x">X-Axis</string>
+    <string name="debug_axis_y">Y-Axis</string>
+    <string name="debug_axis_z">Z-Axis</string>
+    <string name="debug_axis_rx">RX-Axis</string>
+    <string name="debug_axis_ry">RY-Axis</string>
+    <string name="debug_axis_rz">RZ-Axis</string>
+    <string name="debug_throttle">Throttle</string>
+    <string name="debug_brake">Brake</string>
+    <string name="debug_left_trigger">L-Trigger</string>
+    <string name="debug_right_trigger">R-Trigger</string>
 </resources>
