@@ -37,7 +37,7 @@ class InputHelper {
             KeyEvent.KEYCODE_BUTTON_Z -> buttonId = 262144
             KeyEvent.KEYCODE_BUTTON_MODE -> buttonId = 524288
             else -> {
-                Log.i("UNHANDLED KEY EVENT", e.keyCode.toString())
+                Log.d("UNHANDLED KEY EVENT", e.keyCode.toString())
                 keyHandled = false
             }
         }
@@ -68,11 +68,11 @@ class InputHelper {
             axisX.compareTo(1.0f) == 0 -> 8 // Right
             else -> 0
         }
-        if(buttonId == 0){
-            handleAxisButton(4, buttonReport, false)
-            handleAxisButton(8, buttonReport, false)
-        }
-        else{
+        // Always remove both since a rapid transition between these
+        // means we may have missed deactivating one of them
+        handleAxisButton(4, buttonReport, false)
+        handleAxisButton(8, buttonReport, false)
+        if(buttonId > 0){
             handleAxisButton(buttonId, buttonReport, true)
         }
 
@@ -83,11 +83,11 @@ class InputHelper {
             axisY.compareTo(1.0f) == 0 -> 2 // Down
             else -> 0
         }
-        if(buttonId == 0){
+        // Always remove both since a rapid transition between these
+        // means we may have missed deactivating one of them
             handleAxisButton(1, buttonReport, false)
             handleAxisButton(2, buttonReport, false)
-        }
-        else{
+        if(buttonId > 0){
             handleAxisButton(buttonId, buttonReport, true)
         }
 
