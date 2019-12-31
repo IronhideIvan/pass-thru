@@ -21,7 +21,7 @@ namespace PT.Common
     private static readonly Lazy<IAppLogger> _lazyLogger = new Lazy<IAppLogger>(() => ServiceProvider.Get<IAppLogger>().Configure(typeof(UdpSocket)));
     private static readonly IAppLogger _logger = _lazyLogger.Value;
     private Socket _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-    private const int bufSize = 8 * 1024;
+    private const int bufSize = 1 * 1024;
     private State state = new State();
     private EndPoint epFrom = new IPEndPoint(IPAddress.Any, 0);
     private AsyncCallback recv = null;
