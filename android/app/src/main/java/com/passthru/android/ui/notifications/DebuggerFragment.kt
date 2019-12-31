@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -47,7 +48,18 @@ class DebuggerFragment : Fragment() {
         tvThrottle = root.findViewById((R.id.lblThrottleVal))
         tvBrake = root.findViewById((R.id.lblBrakeVal))
 
-        Globals.debuggerFragment = this
+        val cbDebugMode: CheckBox = root.findViewById((R.id.cbDebugMode))
+        cbDebugMode.setOnCheckedChangeListener{ _, isChecked ->
+            Globals.debugMode.set(isChecked)
+            if(isChecked){
+                Globals.debuggerFragment.set(this)
+            }
+            else{
+                Globals.debuggerFragment.set(null)
+            }
+        }
+
+        Globals.debuggerFragment.set(this)
 
         return root
     }

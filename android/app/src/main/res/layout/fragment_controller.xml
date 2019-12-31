@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -16,4 +17,66 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="409dp"
+        android:layout_height="694dp"
+        android:layout_marginTop="12dp"
+        android:dividerPadding="8dp"
+        android:orientation="vertical"
+        android:showDividers="middle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_home">
+
+        <TextView
+            android:id="@+id/tvStatusLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/controller_label_status"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+
+        <TextView
+            android:id="@+id/tvStatusVal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="N/A"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <Button
+            android:id="@+id/btnControllerConnect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="32dp"
+            android:background="@color/colorPrimary"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:text="@string/controller_btn_connect" />
+
+        <Button
+            android:id="@+id/btnControllerRemove"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="32dp"
+            android:background="@color/design_default_color_primary"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:text="@string/controller_btn_disconnect" />
+
+        <Button
+            android:id="@+id/btnControllerClear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="32dp"
+            android:background="@android:color/darker_gray"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:text="@string/controller_btn_clear" />
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

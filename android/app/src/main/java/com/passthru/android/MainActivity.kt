@@ -2,6 +2,7 @@ package com.passthru.android
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -14,16 +15,12 @@ import com.google.gson.Gson
 import com.passthru.android.ui.notifications.DebuggerFragment
 import com.passthru.android.util.*
 import kotlinx.coroutines.*
+import java.lang.Exception
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     private val PREFS_FILENAME = "com.passthru.android.prefs"
-    private val inputHelper: InputHelper = InputHelper()
-    private var inputReport: InputReport = InputReport()
-    private var sentInputReport: InputReport = InputReport()
-    private val localDebugMode = true
-    private val queue = LinkedList<InputReport>()
     private val threadJob: Job = Job()
     private val threadScope = CoroutineScope(Dispatchers.Default + threadJob)
     private var threadLaunched: Boolean = false
@@ -51,8 +48,21 @@ class MainActivity : AppCompatActivity() {
         if(!threadLaunched){
             threadLaunched = true
             threadScope.launch {
+                var errCount: Int = 0
                 while(true){
-                    checkAndSendInputMessage()
+                    try{
+                        InputDispatcher.checkAndSendInputMessage()
+                        errCount = 0
+                    }
+                    catch (e: Exception){
+                        ++errCount
+                        Log.e("CoroutineScope", e.message)
+                    }
+
+                    if(errCount > 5){
+                        throw Exception("Coroutine failed too many times consecutively, aborting program")
+                    }
+
                     delay(10)
                 }
             }
@@ -64,21 +74,10 @@ class MainActivity : AppCompatActivity() {
             return true
         }
 
-        var pte: InputReport = InputReport().copy(inputReport)
-        var pteLast = inputHelper.convert(ev, pte, -1)
-        inputReport = pteLast
-        debugInputReport(pte)
-
-        if(!UdpHelper.isConnected()){
+        val report = InputDispatcher.dispatchMotionEvent(ev)
+        if(report == null){
             return super.dispatchGenericMotionEvent(ev)
         }
-
-        (0 until ev.historySize).forEach {i ->
-            pte = inputHelper.convert(ev, pte, i)
-            queue.addLast(pte)
-        }
-
-        queue.addLast(pteLast)
 
         return true
     }
@@ -88,76 +87,11 @@ class MainActivity : AppCompatActivity() {
             return true
         }
 
-        val pte = inputHelper.convert(event, inputReport)
-        inputReport = pte
-        debugInputReport(pte)
-
-        if(!UdpHelper.isConnected()){
+        val pte = InputDispatcher.dispatchKeyEvent(event)
+        if(pte == null){
             return super.dispatchKeyEvent(event)
         }
 
-        queue.addLast(pte)
-
         return true
-    }
-
-    private fun debugInputReport(report: InputReport){
-        val frag = Globals.debuggerFragment
-        if(localDebugMode && frag != null && frag is DebuggerFragment){
-            frag.populateDebug(report)
-        }
-    }
-
-    private fun toJson(pte: InputReport): String{
-        val gson = Gson()
-        return gson.toJson(pte)
-    }
-
-    @Synchronized private fun checkAndSendInputMessage() {
-        if(queue.size > 0 && UdpHelper.isConnected()) {
-            // Events might be appending to the queue while we are reading it, so we want to
-            // only work with what we have at this very moment
-            val queueSize = queue.size
-            val qteToSend = InputReport()
-
-            if(queueSize == 1){
-                qteToSend.copy(queue.removeFirst())
-            }
-            else{
-                val lastReport = queue[queueSize - 1]
-                var firstReport = queue.removeFirst().buttonReport
-
-                // We always send the first button and last axis reports
-                qteToSend.axisReport.copy((lastReport.axisReport))
-                qteToSend.buttonReport.copy(firstReport)
-
-                // We only care about the last motion inputs since a half millimeter of motion
-                // is negligible and would only serve to overload the server with too many events
-                // to process
-                qteToSend.axisReport.copy(lastReport.axisReport)
-
-                // Remove duplicates from the button report so that we only
-                // ever try to send information if something has changed between two events.
-                // --
-                // The index starts at 1 because we've already removed the first report from the
-                // queue.
-                var index = 1
-                while (index < queueSize){
-                    var currentReport = queue[0].buttonReport
-                    if(firstReport.areEqual(currentReport)){
-                        queue.removeFirst()
-                    }
-
-                    ++index
-                }
-            }
-
-            // Avoid sending the same thing multiple times to reduce bandwidth
-            if(!qteToSend.areEqual(sentInputReport)){
-                qteToSend.messageTimestamp = System.currentTimeMillis()
-                UdpHelper.sendUdp(toJson(qteToSend))
-                sentInputReport = qteToSend
-            }
-        }
     }
 }

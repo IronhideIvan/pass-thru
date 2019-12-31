@@ -18,6 +18,8 @@ import com.passthru.android.util.UdpHelper
 class ConfigFragment : Fragment() {
 
     private lateinit var configViewModel: ConfigViewModel
+    private lateinit var ipAddressView: EditText
+    private lateinit var portView: EditText
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,12 +34,12 @@ class ConfigFragment : Fragment() {
             textView.text = it
         })
 
+        ipAddressView = root.findViewById(R.id.txtIpAddress)
+        portView = root.findViewById(R.id.txtPort)
+
         // Grab the preferences
         val prefs = PrefsHelper.prefs
         if(prefs != null){
-            val ipAddressView: EditText = root.findViewById(R.id.txtIpAddress)
-            val portView: EditText = root.findViewById(R.id.txtPort)
-
             val ipAddress = prefs.getString(PrefsHelper.KEY_IP_ADDRESS, "")
             val port = prefs.getInt(PrefsHelper.KEY_PORT, 0)
 
@@ -52,28 +54,31 @@ class ConfigFragment : Fragment() {
 
         // Setup the button
         val connectButton: Button = root.findViewById(R.id.btnConnectConfig)
-
         connectButton.setOnClickListener{
-            val ipAddressView: EditText = root.findViewById(R.id.txtIpAddress)
-            val portView: EditText = root.findViewById(R.id.txtPort)
             val port = portView.text.toString();
             val ipAddress = ipAddressView.text.toString()
 
-            if(port === "" || ipAddress === ""){
+            if(port == "" || ipAddress == ""){
+                Toast.makeText(context, "Configuration cannot be empty", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val portNumber = Integer.parseInt(port)
             val prefs = PrefsHelper.prefs
+            val portNumber = Integer.parseInt(port)
             val editor = prefs!!.edit()
             if(editor != null){
                 editor.putString(PrefsHelper.KEY_IP_ADDRESS, ipAddress)
                 editor.putInt(PrefsHelper.KEY_PORT, portNumber)
                 editor.apply()
             }
+            Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+        }
 
-            UdpHelper.connect(ipAddress, portNumber)
-            Toast.makeText(context, "Connected", Toast.LENGTH_SHORT).show()
+        val clearButton: Button = root.findViewById(R.id.btnDisconnectConfig)
+        clearButton.setOnClickListener{
+            portView.setText("")
+            ipAddressView.setText("")
+            Toast.makeText(context, "Cleared", Toast.LENGTH_SHORT).show()
         }
 
         return root

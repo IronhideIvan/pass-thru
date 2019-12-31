@@ -1,8 +1,12 @@
 <resources>
     <string name="app_name">PassThru</string>
-    <string name="title_home">Controller</string>
-    <string name="title_dashboard">Configuration</string>
-    <string name="title_notifications">Debugging</string>
+    <string name="title_controller">Controller</string>
+    <string name="title_config">Configuration</string>
+    <string name="title_debug">Debugging</string>
+    <string name="controller_btn_connect">Connect</string>
+    <string name="controller_btn_disconnect">Disconnect</string>
+    <string name="controller_btn_clear">Clear Inputs</string>
+    <string name="controller_label_status">Status</string>
     <string name="config_ip_address">IP Address</string>
     <string name="config_port">Port Number</string>
     <string name="config_test">Save</string>
@@ -19,4 +23,5 @@
     <string name="debug_brake">Brake</string>
     <string name="debug_left_trigger">L-Trigger</string>
     <string name="debug_right_trigger">R-Trigger</string>
+    <string name="debug_mode_toggle">Debug Mode</string>
 </resources>

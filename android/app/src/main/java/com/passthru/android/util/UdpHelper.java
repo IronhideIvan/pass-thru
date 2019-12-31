@@ -28,6 +28,18 @@ public class UdpHelper {
         }
     }
 
+    public static void disconnect(){
+        try{
+            _socket.disconnect();
+        }
+        catch (Exception ex){
+            Log.e("UdpHelper", ex.getMessage());
+        }
+        finally {
+            _socket = null;
+        }
+    }
+
     public static boolean isConnected(){
         return _socket != null;
     }
