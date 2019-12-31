@@ -260,7 +260,7 @@ namespace PT.vJoyFeeder
       output += $"Axis Ry | {_axisRY} | {_axisMinRY} | {_axisMaxRY} \n";
       output += $"Axis Rz | {_axisRZ} | {_axisMinRZ} | {_axisMaxRZ} \n";
 
-      _logger.Debug(output);
+      _logger.Info(output);
     }
   }
 }

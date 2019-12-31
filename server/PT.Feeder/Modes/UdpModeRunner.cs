@@ -31,7 +31,6 @@ namespace PT.Feeder
     {
       try
       {
-        // _logger.Debug(payload);
         var inputReport = JsonConvert.DeserializeObject<InputReport>(payload);
         _feeder.Feed(inputReport);
       }
