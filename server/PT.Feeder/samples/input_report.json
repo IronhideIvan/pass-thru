@@ -1,0 +1,20 @@
+{
+  "messageTimestamp": 123456,
+  "buttonReport": {
+    "buttons": 9
+  },
+  "axisReport": {
+    "axis1": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "axis2": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "throttle": 0.0,
+    "brake": 0.0
+  }
+}
