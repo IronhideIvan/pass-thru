@@ -1,5 +1,6 @@
 package com.passthru.android.util
 
+import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import com.google.gson.Gson
@@ -15,7 +16,7 @@ object InputDispatcher {
 
     fun dispatchMotionEvent(ev: MotionEvent): InputReport? {
         var pte: InputReport = InputReport().copy(inputReport)
-        var pteLast = inputHelper.convert(ev, pte, -1)
+        var pteLast = inputHelper.convert(ev, inputReport, -1)
         inputReport = pteLast
         debugInputReport(pte)
 
@@ -51,11 +52,16 @@ object InputDispatcher {
 
     @Synchronized fun checkAndSendInputMessage() {
         val queueSize = queue.size
+        val debugMode = Globals.debugMode.get()
         if ((clearInputs || queueSize > 0) && UdpHelper.isConnected()) {
             // Events might be appending to the queue while we are reading it, so we want to
             // only work with what we have at this very moment
             val qteToSend = InputReport()
             val forceSend = clearInputs
+
+            if(debugMode){
+                Log.d("Queue", "Size: " + queueSize.toString())
+            }
 
             if(clearInputs){
                 queue.clear()
@@ -95,7 +101,13 @@ object InputDispatcher {
             // Avoid sending the same thing multiple times to reduce bandwidth
             if (forceSend || !qteToSend.areEqual(sentInputReport)) {
                 qteToSend.messageTimestamp = System.currentTimeMillis()
-                UdpHelper.sendUdp(toJson(qteToSend))
+                val json = toJson(qteToSend)
+
+                if(debugMode){
+                    Log.d("Queue", "Packet: " + json)
+                }
+
+                UdpHelper.sendUdp(json)
                 sentInputReport = qteToSend
             }
         }
