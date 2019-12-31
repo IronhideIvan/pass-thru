@@ -178,8 +178,8 @@ namespace PT.vJoyFeeder
             continue;
           }
 
-          var buttonReport = inputReport.buttonReport ?? new ButtonReport();
-          var axisReport = inputReport.axisReport ?? new AxisReport { Axis1 = new Axis(), Axis2 = new Axis() };
+          var buttonReport = inputReport.ButtonReport ?? new ButtonReport();
+          var axisReport = inputReport.AxisReport ?? new AxisReport { Axis1 = new Axis(), Axis2 = new Axis() };
 
           if (_axisX)
           {

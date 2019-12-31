@@ -25,8 +25,8 @@ namespace PT.Feeder
 
       var report = new InputReport
       {
-        buttonReport = new ButtonReport(),
-        axisReport = new AxisReport
+        ButtonReport = new ButtonReport(),
+        AxisReport = new AxisReport
         {
           Axis1 = new Axis(),
           Axis2 = new Axis()
@@ -37,10 +37,10 @@ namespace PT.Feeder
       {
         while (true)
         {
-          report.buttonReport.Buttons = 4;
+          report.ButtonReport.Buttons = 4;
           _feeder.Feed(report);
           System.Threading.Thread.Sleep(20);
-          report.buttonReport.Buttons = 0;
+          report.ButtonReport.Buttons = 0;
           _feeder.Feed(report);
           System.Threading.Thread.Sleep(20);
         }

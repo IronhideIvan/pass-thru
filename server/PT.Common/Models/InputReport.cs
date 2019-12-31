@@ -7,8 +7,8 @@ namespace PT.Common
   public class InputReport
   {
     public long MessageTimestamp { get; set; }
-    public ButtonReport buttonReport { get; set; }
-    public AxisReport axisReport { get; set; }
+    public ButtonReport ButtonReport { get; set; }
+    public AxisReport AxisReport { get; set; }
   }
 
   public class ButtonReport

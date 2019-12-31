@@ -40,9 +40,15 @@ namespace PT.Feeder
               HandleControllerPayload(payloadObj.Payload);
               break;
             default:
-              _logger.Debug($"Unknown payload type: {payloadObj.Type.ToString()}");
+              _logger.Warn($"Unknown payload type: {payloadObj.Type.ToString()}");
+              _logger.Debug($"Payload: {payload}");
               break;
           }
+        }
+        else
+        {
+          _logger.Warn($"Unable to parse incoming payload");
+          _logger.Debug($"Payload: {payload}");
         }
       }
       catch (Exception ex)
