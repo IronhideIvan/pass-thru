@@ -22,8 +22,9 @@ class MainActivity : AppCompatActivity() {
     val inputHelper: InputHelper = InputHelper()
     var inputReport: InputReport = InputReport()
     val localDebugMode = true
-    val timer = Timer("schedule", true)
+    val timer = Timer("inputSenderSchedule", true)
     val queue = LinkedList<InputReport>();
+    var isScheduleRunning = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +55,6 @@ class MainActivity : AppCompatActivity() {
 
     var index: Int = 1
     override fun dispatchGenericMotionEvent(ev: MotionEvent?): Boolean {
-        Log.i("FIRE", index.toString())
         index++
         if(ev == null){
             return true
@@ -111,11 +111,52 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkAndSendInputMessage() {
-        if(queue.size > 0 && UdpHelper.isConnected()) {
-            val pte = queue.removeFirst()
-            pte.messageTimestamp = System.currentTimeMillis()
-//            Log.i("SENT", pte.messageTimestamp.toString())
-            UdpHelper.sendUdp(toJson(pte))
+        if(isScheduleRunning){
+            return
         }
+
+        isScheduleRunning = true
+        if(queue.size > 0 && UdpHelper.isConnected()) {
+            // Events might be appending to the queue while we are reading it, so we want to
+            // only work with what we have at this very moment
+            val queueSize = queue.size
+            val qteToSend = InputReport()
+
+            if(queueSize == 1){
+                qteToSend.copy(queue.removeFirst())
+            }
+            else{
+                val lastReport = queue[queueSize - 1]
+                var firstReport = queue.removeFirst().buttonReport
+
+                // We always send the first button and last axis reports
+                qteToSend.axisReport.copy((lastReport.axisReport))
+                qteToSend.buttonReport.copy(firstReport)
+
+                // We only care about the last motion inputs since a half millimeter of motion
+                // is negligible and would only serve to overload the server with too many events
+                // to process
+                qteToSend.axisReport.copy(lastReport.axisReport)
+
+                // Remove duplicates from the button report so that we only
+                // ever try to send information if something has changed between two events.
+                // --
+                // The index starts at 1 because we've already removed the first report from the
+                // queue.
+                var index = 1
+                while (index < queueSize){
+                    var currentReport = queue[0].buttonReport
+                    if(firstReport.areEqual(currentReport)){
+                        queue.removeFirst()
+                    }
+
+                    ++index
+                }
+            }
+
+            qteToSend.messageTimestamp = System.currentTimeMillis()
+            UdpHelper.sendUdp(toJson(qteToSend))
+        }
+        isScheduleRunning = false
     }
 }
