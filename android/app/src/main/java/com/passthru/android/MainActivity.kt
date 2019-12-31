@@ -2,7 +2,6 @@ package com.passthru.android
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -14,17 +13,20 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.gson.Gson
 import com.passthru.android.ui.notifications.DebuggerFragment
 import com.passthru.android.util.*
+import kotlinx.coroutines.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    val PREFS_FILENAME = "com.passthru.android.prefs"
-    val inputHelper: InputHelper = InputHelper()
-    var inputReport: InputReport = InputReport()
-    val localDebugMode = true
-    val timer = Timer("inputSenderSchedule", true)
-    val queue = LinkedList<InputReport>();
-    var isScheduleRunning = false
+    private val PREFS_FILENAME = "com.passthru.android.prefs"
+    private val inputHelper: InputHelper = InputHelper()
+    private var inputReport: InputReport = InputReport()
+    private var sentInputReport: InputReport = InputReport()
+    private val localDebugMode = true
+    private val queue = LinkedList<InputReport>()
+    private val threadJob: Job = Job()
+    private val threadScope = CoroutineScope(Dispatchers.Default + threadJob)
+    private var threadLaunched: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,36 +48,37 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)
         PrefsHelper.prefs = prefs
 
-        timer.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                checkAndSendInputMessage()
+        if(!threadLaunched){
+            threadLaunched = true
+            threadScope.launch {
+                while(true){
+                    checkAndSendInputMessage()
+                    delay(10)
+                }
             }
-        }, 100, 10)
+        }
     }
 
-    var index: Int = 1
     override fun dispatchGenericMotionEvent(ev: MotionEvent?): Boolean {
-        index++
         if(ev == null){
             return true
         }
 
-        var pte: InputReport = inputReport;
+        var pte: InputReport = InputReport().copy(inputReport)
+        var pteLast = inputHelper.convert(ev, pte, -1)
+        inputReport = pteLast
+        debugInputReport(pte)
+
+        if(!UdpHelper.isConnected()){
+            return super.dispatchGenericMotionEvent(ev)
+        }
 
         (0 until ev.historySize).forEach {i ->
             pte = inputHelper.convert(ev, pte, i)
             queue.addLast(pte)
         }
 
-        pte = inputHelper.convert(ev, inputReport, -1)
-        inputReport = pte
-        debugInputReport()
-
-        queue.addLast(pte)
-
-        if(!UdpHelper.isConnected()){
-            return super.dispatchGenericMotionEvent(ev)
-        }
+        queue.addLast(pteLast)
 
         return true
     }
@@ -87,21 +90,21 @@ class MainActivity : AppCompatActivity() {
 
         val pte = inputHelper.convert(event, inputReport)
         inputReport = pte
-        debugInputReport()
-
-        queue.addLast(pte)
+        debugInputReport(pte)
 
         if(!UdpHelper.isConnected()){
             return super.dispatchKeyEvent(event)
         }
 
+        queue.addLast(pte)
+
         return true
     }
 
-    private fun debugInputReport(){
+    private fun debugInputReport(report: InputReport){
         val frag = Globals.debuggerFragment
         if(localDebugMode && frag != null && frag is DebuggerFragment){
-            frag.populateDebug(inputReport)
+            frag.populateDebug(report)
         }
     }
 
@@ -110,12 +113,7 @@ class MainActivity : AppCompatActivity() {
         return gson.toJson(pte)
     }
 
-    private fun checkAndSendInputMessage() {
-        if(isScheduleRunning){
-            return
-        }
-
-        isScheduleRunning = true
+    @Synchronized private fun checkAndSendInputMessage() {
         if(queue.size > 0 && UdpHelper.isConnected()) {
             // Events might be appending to the queue while we are reading it, so we want to
             // only work with what we have at this very moment
@@ -154,9 +152,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            qteToSend.messageTimestamp = System.currentTimeMillis()
-            UdpHelper.sendUdp(toJson(qteToSend))
+            // Avoid sending the same thing multiple times to reduce bandwidth
+            if(!qteToSend.areEqual(sentInputReport)){
+                qteToSend.messageTimestamp = System.currentTimeMillis()
+                UdpHelper.sendUdp(toJson(qteToSend))
+                sentInputReport = qteToSend
+            }
         }
-        isScheduleRunning = false
     }
 }

@@ -129,6 +129,11 @@ class InputReport : Serializable{
     val buttonReport: ButtonReport = ButtonReport()
     val axisReport: AxisReport = AxisReport()
 
+    fun areEqual(other: InputReport): Boolean{
+        return buttonReport.areEqual(other.buttonReport)
+                && axisReport.areEqual(other.axisReport)
+    }
+
     fun copy(other: InputReport): InputReport{
         buttonReport.copy(other.buttonReport)
         axisReport.copy(other.axisReport)
@@ -155,6 +160,13 @@ class AxisReport : Serializable {
     var throttle: Float = 0.0f
     var brake: Float = 0.0f
 
+    fun areEqual(other: AxisReport): Boolean {
+        return axis1.areEqual(other.axis1)
+                && axis2.areEqual(other.axis2)
+                && throttle == other.throttle
+                && brake == other.brake
+    }
+
     fun copy(other: AxisReport): AxisReport{
         axis1.copy(other.axis1)
         axis2.copy(other.axis2)
@@ -168,6 +180,12 @@ class Axis: Serializable{
     var x: Float = 0.0f
     var y: Float = 0.0f
     var z: Float = 0.0f
+
+    fun areEqual(other: Axis): Boolean{
+        return x == other.x
+                && y == other.y
+                && z == other.z
+    }
 
     fun copy(other: Axis){
         this.x = other.x
