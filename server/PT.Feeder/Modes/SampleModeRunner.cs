@@ -25,18 +25,22 @@ namespace PT.Feeder
 
       var report = new InputReport
       {
-        Axis1 = new Axis(),
-        Axis2 = new Axis()
+        buttonReport = new ButtonReport(),
+        axisReport = new AxisReport
+        {
+          Axis1 = new Axis(),
+          Axis2 = new Axis()
+        }
       };
 
       try
       {
         while (true)
         {
-          report.Buttons = 4;
+          report.buttonReport.Buttons = 4;
           _feeder.Feed(report);
           System.Threading.Thread.Sleep(20);
-          report.Buttons = 0;
+          report.buttonReport.Buttons = 0;
           _feeder.Feed(report);
           System.Threading.Thread.Sleep(20);
         }

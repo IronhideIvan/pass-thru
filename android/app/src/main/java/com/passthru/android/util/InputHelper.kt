@@ -3,12 +3,14 @@ package com.passthru.android.util
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
+import android.widget.Button
 import java.io.Serializable
 
 class InputHelper {
     fun convert(e: KeyEvent, immutableReport: InputReport): InputReport{
 
         val report = InputReport().copy(immutableReport)
+        val buttonReport = report.buttonReport
 
         var buttonId = 0
         var keyHandled = true
@@ -41,11 +43,11 @@ class InputHelper {
         }
 
         if(keyHandled){
-            if(e.action == KeyEvent.ACTION_UP && report.buttons.and(buttonId) == buttonId){
-                report.buttons -= buttonId
+            if(e.action == KeyEvent.ACTION_UP && buttonReport.buttons.and(buttonId) == buttonId){
+                buttonReport.buttons -= buttonId
             }
             else if(e.action == KeyEvent.ACTION_DOWN){
-                report.buttons = report.buttons.or(buttonId)
+                buttonReport.buttons = buttonReport.buttons.or(buttonId)
             }
         }
 
@@ -54,7 +56,9 @@ class InputHelper {
 
     fun convert(e: MotionEvent, immutableReport: InputReport, historyPos: Int): InputReport{
 
-        val report= InputReport().copy(immutableReport)
+        val fullReport= InputReport().copy(immutableReport)
+        val axisReport = fullReport.axisReport
+        val buttonReport = fullReport.buttonReport
         var buttonId = 0
 
         // Check if d-pad is being pressed
@@ -65,11 +69,11 @@ class InputHelper {
             else -> 0
         }
         if(buttonId == 0){
-            handleAxisButton(4, report, false)
-            handleAxisButton(8, report, false)
+            handleAxisButton(4, buttonReport, false)
+            handleAxisButton(8, buttonReport, false)
         }
         else{
-            handleAxisButton(buttonId, report, true)
+            handleAxisButton(buttonId, buttonReport, true)
         }
 
         buttonId = 0
@@ -80,25 +84,25 @@ class InputHelper {
             else -> 0
         }
         if(buttonId == 0){
-            handleAxisButton(1, report, false)
-            handleAxisButton(2, report, false)
+            handleAxisButton(1, buttonReport, false)
+            handleAxisButton(2, buttonReport, false)
         }
         else{
-            handleAxisButton(buttonId, report, true)
+            handleAxisButton(buttonId, buttonReport, true)
         }
 
-        report.axis1.x = getAxisVal(e, MotionEvent.AXIS_X, historyPos)
-        report.axis1.y = getAxisVal(e, MotionEvent.AXIS_Y, historyPos)
-        report.axis1.z = getAxisVal(e, MotionEvent.AXIS_Z, historyPos)
+        axisReport.axis1.x = getAxisVal(e, MotionEvent.AXIS_X, historyPos)
+        axisReport.axis1.y = getAxisVal(e, MotionEvent.AXIS_Y, historyPos)
+        axisReport.axis1.z = getAxisVal(e, MotionEvent.AXIS_Z, historyPos)
 
-        report.axis2.x = getAxisVal(e, MotionEvent.AXIS_RX, historyPos)
-        report.axis2.y = getAxisVal(e, MotionEvent.AXIS_RY, historyPos)
-        report.axis2.z = getAxisVal(e, MotionEvent.AXIS_RZ, historyPos)
+        axisReport.axis2.x = getAxisVal(e, MotionEvent.AXIS_RX, historyPos)
+        axisReport.axis2.y = getAxisVal(e, MotionEvent.AXIS_RY, historyPos)
+        axisReport.axis2.z = getAxisVal(e, MotionEvent.AXIS_RZ, historyPos)
 
-        report.throttle = getAxisVal(e, MotionEvent.AXIS_THROTTLE, historyPos)
-        report.brake = getAxisVal(e, MotionEvent.AXIS_BRAKE, historyPos)
+        axisReport.throttle = getAxisVal(e, MotionEvent.AXIS_THROTTLE, historyPos)
+        axisReport.brake = getAxisVal(e, MotionEvent.AXIS_BRAKE, historyPos)
 
-        return report
+        return fullReport
     }
 
     private fun getAxisVal(e: MotionEvent, eventKey: Int, historyPos: Int): Float {
@@ -110,7 +114,7 @@ class InputHelper {
         }
     }
 
-    private fun handleAxisButton(buttonId: Int, report: InputReport, add: Boolean) {
+    private fun handleAxisButton(buttonId: Int, report: ButtonReport, add: Boolean) {
         if(!add && report.buttons.and(buttonId) == buttonId){
             report.buttons -= buttonId
         }
@@ -121,15 +125,37 @@ class InputHelper {
 }
 
 class InputReport : Serializable{
-    var buttons: Int = 0
-    var axis1: Axis = Axis()
-    var axis2: Axis = Axis()
-    var throttle: Float = 0.0f
-    var brake: Float = 0.0f
     var messageTimestamp: Long = 0
+    val buttonReport: ButtonReport = ButtonReport()
+    val axisReport: AxisReport = AxisReport()
 
     fun copy(other: InputReport): InputReport{
+        buttonReport.copy(other.buttonReport)
+        axisReport.copy(other.axisReport)
+        return this
+    }
+}
+
+class ButtonReport : Serializable {
+    var buttons: Int = 0
+
+    fun areEqual(other: ButtonReport): Boolean{
+        return this.buttons == other.buttons
+    }
+
+    fun copy(other: ButtonReport): ButtonReport{
         this.buttons = other.buttons
+        return this
+    }
+}
+
+class AxisReport : Serializable {
+    val axis1: Axis = Axis()
+    val axis2: Axis = Axis()
+    var throttle: Float = 0.0f
+    var brake: Float = 0.0f
+
+    fun copy(other: AxisReport): AxisReport{
         axis1.copy(other.axis1)
         axis2.copy(other.axis2)
         this.throttle = other.throttle
@@ -137,6 +163,7 @@ class InputReport : Serializable{
         return this
     }
 }
+
 class Axis: Serializable{
     var x: Float = 0.0f
     var y: Float = 0.0f

@@ -22,9 +22,9 @@ namespace PT.WebApi.Controllers
     {
       try
       {
-        var udpSocket = ServiceProvider.Get<IUdpSocket>();
-        udpSocket.InitializeClient("127.0.0.1", 7084, null);
-        udpSocket.Send(JsonConvert.SerializeObject(new InputReport { Buttons = (ulong)buttonId }));
+        // var udpSocket = ServiceProvider.Get<IUdpSocket>();
+        // udpSocket.InitializeClient("127.0.0.1", 7084, null);
+        // udpSocket.Send(JsonConvert.SerializeObject(new InputReport { Buttons = (ulong)buttonId }));
       }
       catch (Exception ex)
       {

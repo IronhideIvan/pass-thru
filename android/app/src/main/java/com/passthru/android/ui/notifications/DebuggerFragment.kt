@@ -53,13 +53,13 @@ class DebuggerFragment : Fragment() {
     }
 
     fun populateDebug(report: InputReport) {
-        tvXAxis.setText(report.axis1.x.toString())
-        tvYAxis.setText(report.axis1.y.toString())
-        tvZAxis.setText(report.axis1.z.toString())
-        tvRxAxis.setText(report.axis2.x.toString())
-        tvRyAxis.setText(report.axis2.y.toString())
-        tvRzAxis.setText(report.axis2.z.toString())
-        tvThrottle.setText(report.throttle.toString())
-        tvBrake.setText(report.brake.toString())
+        tvXAxis.setText(report.axisReport.axis1.x.toString())
+        tvYAxis.setText(report.axisReport.axis1.y.toString())
+        tvZAxis.setText(report.axisReport.axis1.z.toString())
+        tvRxAxis.setText(report.axisReport.axis2.x.toString())
+        tvRyAxis.setText(report.axisReport.axis2.y.toString())
+        tvRzAxis.setText(report.axisReport.axis2.z.toString())
+        tvThrottle.setText(report.axisReport.throttle.toString())
+        tvBrake.setText(report.axisReport.brake.toString())
     }
 }

@@ -171,54 +171,47 @@ namespace PT.vJoyFeeder
       {
         if (_backgroundQueue.TryDequeue(out inputReport))
         {
-          if (previousId > inputReport.MessageTimestamp)
+          if (inputReport == null || previousId > inputReport.MessageTimestamp)
           {
             // If we've already processed a message from a future point in time,
             // then discard this message as it's no longer valid.
             continue;
           }
 
+          var buttonReport = inputReport.buttonReport ?? new ButtonReport();
+          var axisReport = inputReport.axisReport ?? new AxisReport { Axis1 = new Axis(), Axis2 = new Axis() };
+
           if (_axisX)
           {
-            report.AxisX = GetAxisValue(inputReport.Axis1.X, _axisMinX, _axisMaxX);
+            report.AxisX = GetAxisValue(axisReport.Axis1.X, _axisMinX, _axisMaxX);
           }
 
           if (_axisY)
           {
-            report.AxisY = GetAxisValue(inputReport.Axis1.Y, _axisMinY, _axisMaxY);
+            report.AxisY = GetAxisValue(axisReport.Axis1.Y, _axisMinY, _axisMaxY);
           }
 
           if (_axisZ)
           {
-            report.AxisZ = GetAxisValue(inputReport.Axis1.Z, _axisMinZ, _axisMaxZ);
+            report.AxisZ = GetAxisValue(axisReport.Axis1.Z, _axisMinZ, _axisMaxZ);
           }
 
           if (_axisRX)
           {
-            report.AxisXRot = GetAxisValue(inputReport.Axis2.X, _axisMinRX, _axisMaxRX);
+            report.AxisXRot = GetAxisValue(axisReport.Axis2.X, _axisMinRX, _axisMaxRX);
           }
 
           if (_axisRY)
           {
-            report.AxisYRot = GetAxisValue(inputReport.Axis2.Y, _axisMinRY, _axisMaxRY);
+            report.AxisYRot = GetAxisValue(axisReport.Axis2.Y, _axisMinRY, _axisMaxRY);
           }
 
           if (_axisRZ)
           {
-            report.AxisZRot = GetAxisValue(inputReport.Axis2.Z, _axisMinRZ, _axisMaxRZ);
+            report.AxisZRot = GetAxisValue(axisReport.Axis2.Z, _axisMinRZ, _axisMaxRZ);
           }
 
-          report.Buttons = (uint)inputReport.Buttons;
-
-          // ulong[] buttonArr = new ulong[] { 4, 8 };
-
-          // foreach (var btn in buttonArr)
-          // {
-          //   bool btnSet = (inputReport.Buttons & btn) > 0;
-          //   _joystick.SetBtn(btnSet, _deviceId, (uint)btn);
-          // }
-
-          // _logger.Debug($"SENT: {DateTime.Now.TimeOfDay.TotalMilliseconds.ToString()}");
+          report.Buttons = (uint)buttonReport.Buttons;
 
           if (!_joystick.UpdateVJD(_deviceId, ref report))
           {
