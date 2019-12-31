@@ -49,10 +49,13 @@ class MainActivity : AppCompatActivity() {
             override fun run() {
                 checkAndSendInputMessage()
             }
-        }, 1000, 10)
+        }, 100, 10)
     }
 
+    var index: Int = 1
     override fun dispatchGenericMotionEvent(ev: MotionEvent?): Boolean {
+        Log.i("FIRE", index.toString())
+        index++
         if(ev == null){
             return true
         }
@@ -108,7 +111,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkAndSendInputMessage() {
-        if(queue.size > 0) {
+        if(queue.size > 0 && UdpHelper.isConnected()) {
             val pte = queue.removeFirst()
             pte.messageTimestamp = System.currentTimeMillis()
 //            Log.i("SENT", pte.messageTimestamp.toString())
