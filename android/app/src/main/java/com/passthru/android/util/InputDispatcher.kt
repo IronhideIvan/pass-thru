@@ -107,7 +107,7 @@ object InputDispatcher {
                     Log.d("Queue", "Packet: " + json)
                 }
 
-                UdpHelper.sendUdp(json)
+                UdpHelper.sendUdp("C" + json)
                 sentInputReport = qteToSend
             }
         }
