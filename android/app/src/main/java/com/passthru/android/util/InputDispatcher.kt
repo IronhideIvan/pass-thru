@@ -50,10 +50,10 @@ object InputDispatcher {
     }
 
     @Synchronized fun checkAndSendInputMessage() {
-        if (queue.size > 0 && UdpHelper.isConnected()) {
+        val queueSize = queue.size
+        if ((clearInputs || queueSize > 0) && UdpHelper.isConnected()) {
             // Events might be appending to the queue while we are reading it, so we want to
             // only work with what we have at this very moment
-            val queueSize = queue.size
             val qteToSend = InputReport()
             val forceSend = clearInputs
 
