@@ -31,13 +31,30 @@ namespace PT.Feeder
     {
       try
       {
-        var inputReport = JsonConvert.DeserializeObject<InputReport>(payload);
-        _feeder.Feed(inputReport);
+        var payloadObj = UdpPayload.Parse(payload);
+        if (payloadObj.Status == PayloadStatus.Success)
+        {
+          switch (payloadObj.Type)
+          {
+            case PayloadType.Controller:
+              HandleControllerPayload(payloadObj.Payload);
+              break;
+            default:
+              _logger.Debug($"Unknown payload type: {payloadObj.Type.ToString()}");
+              break;
+          }
+        }
       }
       catch (Exception ex)
       {
         _logger.Error(ex.Message);
       }
+    }
+
+    private void HandleControllerPayload(string payload)
+    {
+      InputReport inputReport = JsonConvert.DeserializeObject<InputReport>(payload);
+      _feeder.Feed(inputReport);
     }
   }
 }
