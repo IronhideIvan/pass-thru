@@ -6,6 +6,7 @@ namespace PT.Common
 {
   public interface IMouseFeeder
   {
+    void Connect();
     void Feed(MouseReport mouseReport);
   }
 }

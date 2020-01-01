@@ -18,6 +18,7 @@ namespace PT.Feeder
 
       _logger.GlobalConfig(parsedArgs.LogLevel);
       _inputFeeder.Connect(parsedArgs.DeviceId);
+      _mouseFeeder.Connect();
       _udpSocket.InitializeServer(parsedArgs.UdpAddress, parsedArgs.UdpPort, UdpCallback);
 
       _logger.Info($"UDP Server Initialized on {parsedArgs.UdpAddress}:{parsedArgs.UdpPort}");

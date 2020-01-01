@@ -63,7 +63,19 @@ namespace PT.Feeder
 
       try
       {
-        feeder.Feed(new MouseReport());
+        feeder.Connect();
+        feeder.Feed(new MouseReport
+        {
+          Velocity = new Axis
+          {
+            X = 1f,
+            Y = 1f
+          },
+          Buttons = new ButtonReport
+          {
+            Buttons = 2
+          }
+        });
       }
       catch (Exception ex)
       {
