@@ -10,10 +10,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.passthru.android.R
+import com.passthru.android.util.ActionDispatcher
 import com.passthru.android.util.Globals
 import com.passthru.android.util.InputDispatcher
-import com.passthru.android.util.InputReport
 import com.passthru.android.util.UdpHelper
+import com.passthru.android.util.models.InputReport
 import java.security.Key
 import kotlin.random.Random
 
@@ -103,7 +104,7 @@ class DebuggerFragment : Fragment() {
 
             val motionEventCodes = intArrayOf(MotionEvent.AXIS_X, MotionEvent.AXIS_Y, MotionEvent.AXIS_Z, MotionEvent.AXIS_RX, MotionEvent.AXIS_RY, MotionEvent.AXIS_RZ, MotionEvent.AXIS_THROTTLE, MotionEvent.AXIS_BRAKE)
             val motionEvent = MotionEvent.obtain(1, 1, motionEventCodes[Random.nextInt(0, motionEventCodes.size)], Random.nextFloat(), Random.nextFloat(), 0)
-            InputDispatcher.dispatchMotionEvent(motionEvent)
+            ActionDispatcher.dispatchMotionEvent(motionEvent)
         }
 
         val btnSendButton: Button = root.findViewById((R.id.btnSendButtonSignal))
@@ -122,7 +123,7 @@ class DebuggerFragment : Fragment() {
                 btnEventCodes[Random.nextInt(0, btnEventCodes.size)],
             0, 0, 0, 0, 0, 0)
 
-            InputDispatcher.dispatchKeyEvent(keyEvent)
+            ActionDispatcher.dispatchKeyEvent(keyEvent)
         }
 
         return root

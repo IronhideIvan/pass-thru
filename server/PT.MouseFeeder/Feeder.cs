@@ -41,6 +41,7 @@ namespace PT.MouseFeeder
       // timestamp.
       if (_previousMessageTimestamp > mouseReport.MessageTimestamp)
       {
+        _logger.Debug("Discarding old message.");
         return;
       }
 
@@ -83,33 +84,45 @@ namespace PT.MouseFeeder
 
       Win32.SetCursorPos(cursorPos.x, cursorPos.y);
 
-      int buttonsClicked = GetMouseClicks(mouseReport.Buttons);
-      if (buttonsClicked > 0)
+      if (mouseReport.Click)
       {
-        Win32.mouse_event((uint)buttonsClicked, (uint)cursorPos.x, (uint)cursorPos.y, 0, 0);
+        int buttonsClicked = GetMouseClicks(mouseReport.Buttons);
+        if (buttonsClicked > 0)
+        {
+          Win32.mouse_event((uint)buttonsClicked, (uint)cursorPos.x, (uint)cursorPos.y, 0, 0);
+        }
       }
+
+      _logger.Debug($"Cursor Position: ({cursorPos.x}, {cursorPos.y})");
+    }
+
+    [Flags]
+    private enum MouseButtons
+    {
+      None = 0,
+      LeftClick = 256,
+      RightClick = 131072
     }
 
     public int GetMouseClicks(ButtonReport report)
     {
       int buttons = 0;
-      if ((report.Buttons & Win32.DWORD_FLAGS.MOUSEEVENTF_LEFTDOWN) > 0)
+      if ((report.Buttons & (int)MouseButtons.LeftClick) > 0)
       {
         buttons += Win32.DWORD_FLAGS.MOUSEEVENTF_LEFTDOWN;
       }
-      else if ((report.Buttons & Win32.DWORD_FLAGS.MOUSEEVENTF_LEFTUP) > 0)
+      else if ((report.Buttons & (int)MouseButtons.LeftClick) == 0)
       {
         buttons += Win32.DWORD_FLAGS.MOUSEEVENTF_LEFTUP;
       }
-
-      if ((report.Buttons & Win32.DWORD_FLAGS.MOUSEEVENTF_RIGHTDOWN) > 0)
-      {
-        buttons += Win32.DWORD_FLAGS.MOUSEEVENTF_RIGHTDOWN;
-      }
-      else if ((report.Buttons & Win32.DWORD_FLAGS.MOUSEEVENTF_RIGHTUP) > 0)
-      {
-        buttons += Win32.DWORD_FLAGS.MOUSEEVENTF_RIGHTUP;
-      }
+      // else if ((report.Buttons & (int)MouseButtons.RightClick) > 0)
+      // {
+      //   buttons += Win32.DWORD_FLAGS.MOUSEEVENTF_RIGHTDOWN;
+      // }
+      // else if ((report.Buttons & (int)MouseButtons.RightClick) == 0)
+      // {
+      //   buttons += Win32.DWORD_FLAGS.MOUSEEVENTF_RIGHTUP;
+      // }
 
       return buttons;
     }
@@ -118,7 +131,7 @@ namespace PT.MouseFeeder
     {
       float absAxis = Math.Abs(axis);
       int motion = 0;
-      long speed = max / 4;
+      long speed = max / 16;
 
       // we want to ignore very minor movements of the axis so that
       // the mouse doesnt jitter around at the slightest motion.

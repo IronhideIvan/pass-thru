@@ -42,7 +42,7 @@ namespace PT.Feeder
               HandleControllerPayload(payloadObj.Payload);
               break;
             case PayloadType.Mouse:
-              HandleControllerPayload(payloadObj.Payload);
+              HandleMousePayload(payloadObj.Payload);
               break;
             default:
               _logger.Warn($"Unknown payload type: {payloadObj.Type.ToString()}");

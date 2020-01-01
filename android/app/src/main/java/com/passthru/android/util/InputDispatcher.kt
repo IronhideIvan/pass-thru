@@ -4,13 +4,12 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import com.google.gson.Gson
-import com.passthru.android.ui.notifications.DebuggerFragment
+import com.passthru.android.util.models.InputReport
 import java.util.*
 
 object InputDispatcher {
     private val inputHelper: InputHelper = InputHelper()
     private var inputReport: InputReport = InputReport()
-    private var sentInputReport: InputReport = InputReport()
     private val queue = LinkedList<InputReport>()
     private var clearInputs: Boolean = false
 
@@ -34,8 +33,12 @@ object InputDispatcher {
     }
 
     fun dispatchKeyEvent(event: KeyEvent): InputReport? {
+        if(event.repeatCount > 0){
+            return null
+        }
+
         val pte = inputHelper.convert(event, inputReport)
-        inputReport = pte
+        inputReport = inputReport.copy(pte)
         debugInputReport(pte)
 
         if(!UdpHelper.isConnected()){
@@ -57,7 +60,6 @@ object InputDispatcher {
             // Events might be appending to the queue while we are reading it, so we want to
             // only work with what we have at this very moment
             val qteToSend = InputReport()
-            val forceSend = clearInputs
 
             if(debugMode){
                 Log.d("Queue", "Size: " + queueSize.toString())
@@ -99,17 +101,14 @@ object InputDispatcher {
             }
 
             // Avoid sending the same thing multiple times to reduce bandwidth
-            if (forceSend || !qteToSend.areEqual(sentInputReport)) {
-                qteToSend.messageTimestamp = System.currentTimeMillis()
-                val json = toJson(qteToSend)
+            qteToSend.messageTimestamp = System.currentTimeMillis()
+            val json = toJson(qteToSend)
 
-                if(debugMode){
-                    Log.d("Queue", "Packet: " + json)
-                }
-
-                UdpHelper.sendUdp("C" + json)
-                sentInputReport = qteToSend
+            if(debugMode){
+                Log.d("Queue", "Packet: " + json)
             }
+
+            UdpHelper.sendUdp("C" + json)
         }
     }
 

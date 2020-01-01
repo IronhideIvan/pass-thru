@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.passthru.android.R
+import com.passthru.android.util.ActionDispatcher
 import com.passthru.android.util.InputDispatcher
 import com.passthru.android.util.PrefsHelper
 import com.passthru.android.util.UdpHelper
@@ -19,6 +17,13 @@ import com.passthru.android.util.UdpHelper
 class ControllerFragment : Fragment() {
 
     private lateinit var controllerViewModel: ControllerViewModel
+    private lateinit var statusLabel: TextView
+    private lateinit var connectButton: Button
+    private lateinit var clearButton: Button
+    private lateinit var disconnectButton: Button
+    private lateinit var controlModeGroup: RadioGroup
+    private lateinit var rbJoypad: RadioButton
+    private lateinit var rbMouse: RadioButton
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,7 +38,7 @@ class ControllerFragment : Fragment() {
             textView.text = it
         })
 
-        val statusLabel: TextView = root.findViewById(R.id.tvStatusVal)
+        statusLabel = root.findViewById(R.id.tvStatusVal)
         if(UdpHelper.isConnected()){
             statusLabel.setText("Connected")
         }
@@ -42,7 +47,24 @@ class ControllerFragment : Fragment() {
         }
 
         // Setup the buttons
-        val connectButton: Button = root.findViewById(R.id.btnControllerConnect)
+        connectButton = root.findViewById(R.id.btnControllerConnect)
+        BuildConnectButton()
+
+        disconnectButton = root.findViewById(R.id.btnControllerRemove)
+        BuildDisconnectButton()
+
+        clearButton = root.findViewById(R.id.btnControllerClear)
+        BuildClearButton()
+
+        controlModeGroup = root.findViewById(R.id.rgControlMode)
+        rbMouse = root.findViewById(R.id.rbMouse)
+        rbJoypad = root.findViewById(R.id.rbJoystick)
+        BuildControlModeRadioGroup(root)
+
+        return root
+    }
+
+    private fun BuildConnectButton() {
         connectButton.setOnClickListener{
             if(UdpHelper.isConnected()){
                 Toast.makeText(context, "Already connected", Toast.LENGTH_SHORT).show()
@@ -67,20 +89,9 @@ class ControllerFragment : Fragment() {
             Toast.makeText(context, "Connected", Toast.LENGTH_SHORT).show()
             statusLabel.setText("Connected")
         }
+    }
 
-        val disconnectButton: Button = root.findViewById(R.id.btnControllerRemove)
-        disconnectButton.setOnClickListener{
-            if(!UdpHelper.isConnected()){
-                Toast.makeText(context, "Already disconnected", Toast.LENGTH_SHORT).show()
-            }
-            else{
-                UdpHelper.disconnect()
-                statusLabel.setText("Not connected")
-                Toast.makeText(context, "Disconnected", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        val clearButton: Button = root.findViewById(R.id.btnControllerClear)
+    private fun BuildClearButton() {
         clearButton.setOnClickListener{
             if(!UdpHelper.isConnected()){
                 Toast.makeText(context, "Not connected", Toast.LENGTH_SHORT).show()
@@ -89,9 +100,39 @@ class ControllerFragment : Fragment() {
                 InputDispatcher.clearInputs()
                 Toast.makeText(context, "Cleared", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
 
+    private fun BuildDisconnectButton() {
+        disconnectButton.setOnClickListener{
+            if(!UdpHelper.isConnected()) {
+                Toast.makeText(context, "Already disconnected", Toast.LENGTH_SHORT).show()
+            }
+            else {
+                UdpHelper.disconnect()
+                statusLabel.setText("Not connected")
+                Toast.makeText(context, "Disconnected", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun BuildControlModeRadioGroup(root: View) {
+        if(ActionDispatcher.getMode() == "Mouse"){
+            rbMouse.isChecked = true
+        }
+        else{
+            rbJoypad.isChecked = true
         }
 
-        return root
+        controlModeGroup.setOnCheckedChangeListener(
+            RadioGroup.OnCheckedChangeListener{_, checkedId ->
+                if(rbMouse.id == checkedId) {
+                    ActionDispatcher.setMode("Mouse")
+                }
+                else{
+                    ActionDispatcher.setMode("Input")
+                }
+            }
+        )
     }
 }

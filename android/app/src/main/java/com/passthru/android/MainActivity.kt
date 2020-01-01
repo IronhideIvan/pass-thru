@@ -1,6 +1,7 @@
 package com.passthru.android
 
 import android.content.Context
+import android.drm.DrmStore
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -11,12 +12,9 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.gson.Gson
-import com.passthru.android.ui.notifications.DebuggerFragment
 import com.passthru.android.util.*
 import kotlinx.coroutines.*
 import java.lang.Exception
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,12 +49,12 @@ class MainActivity : AppCompatActivity() {
                 var errCount: Int = 0
                 while(true){
                     try{
-                        InputDispatcher.checkAndSendInputMessage()
+                        ActionDispatcher.checkAndSendInputMessage()
                         errCount = 0
                     }
                     catch (e: Exception){
                         ++errCount
-                        Log.e("CoroutineScope", e.message)
+                        Log.e("CoroutineScope", e.message!!)
                     }
 
                     if(errCount > 5){
@@ -74,8 +72,8 @@ class MainActivity : AppCompatActivity() {
             return true
         }
 
-        val report = InputDispatcher.dispatchMotionEvent(ev)
-        if(report == null){
+        val handled = ActionDispatcher.dispatchMotionEvent(ev)
+        if(!handled){
             return super.dispatchGenericMotionEvent(ev)
         }
 
@@ -87,8 +85,8 @@ class MainActivity : AppCompatActivity() {
             return true
         }
 
-        val pte = InputDispatcher.dispatchKeyEvent(event)
-        if(pte == null){
+        val handled = ActionDispatcher.dispatchKeyEvent(event)
+        if(!handled){
             return super.dispatchKeyEvent(event)
         }
 

@@ -9,5 +9,6 @@ namespace PT.Common
     public long MessageTimestamp { get; set; }
     public ButtonReport Buttons { get; set; }
     public Axis Velocity { get; set; }
+    public bool Click { get; set; }
   }
 }

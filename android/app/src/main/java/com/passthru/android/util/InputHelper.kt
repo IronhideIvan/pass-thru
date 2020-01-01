@@ -4,6 +4,8 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.widget.Button
+import com.passthru.android.util.models.ButtonReport
+import com.passthru.android.util.models.InputReport
 import java.io.Serializable
 
 class InputHelper {
@@ -121,75 +123,5 @@ class InputHelper {
         else if(add){
             report.buttons = report.buttons.or(buttonId)
         }
-    }
-}
-
-class InputReport : Serializable{
-    var messageTimestamp: Long = 0
-    val buttonReport: ButtonReport = ButtonReport()
-    val axisReport: AxisReport = AxisReport()
-
-    fun areEqual(other: InputReport): Boolean{
-        return buttonReport.areEqual(other.buttonReport)
-                && axisReport.areEqual(other.axisReport)
-    }
-
-    fun copy(other: InputReport): InputReport{
-        buttonReport.copy(other.buttonReport)
-        axisReport.copy(other.axisReport)
-        return this
-    }
-}
-
-class ButtonReport : Serializable {
-    var buttons: Int = 0
-
-    fun areEqual(other: ButtonReport): Boolean{
-        return this.buttons == other.buttons
-    }
-
-    fun copy(other: ButtonReport): ButtonReport{
-        this.buttons = other.buttons
-        return this
-    }
-}
-
-class AxisReport : Serializable {
-    val axis1: Axis = Axis()
-    val axis2: Axis = Axis()
-    var throttle: Float = 0.0f
-    var brake: Float = 0.0f
-
-    fun areEqual(other: AxisReport): Boolean {
-        return axis1.areEqual(other.axis1)
-                && axis2.areEqual(other.axis2)
-                && throttle == other.throttle
-                && brake == other.brake
-    }
-
-    fun copy(other: AxisReport): AxisReport{
-        axis1.copy(other.axis1)
-        axis2.copy(other.axis2)
-        this.throttle = other.throttle
-        this.brake = other.brake
-        return this
-    }
-}
-
-class Axis: Serializable{
-    var x: Float = 0.0f
-    var y: Float = 0.0f
-    var z: Float = 0.0f
-
-    fun areEqual(other: Axis): Boolean{
-        return x == other.x
-                && y == other.y
-                && z == other.z
-    }
-
-    fun copy(other: Axis){
-        this.x = other.x
-        this.y = other.y
-        this.z = other.z
     }
 }

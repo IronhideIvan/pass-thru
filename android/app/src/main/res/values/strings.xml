@@ -7,6 +7,9 @@
     <string name="controller_btn_disconnect">Disconnect</string>
     <string name="controller_btn_clear">Clear Inputs</string>
     <string name="controller_label_status">Status</string>
+    <string name="controller_label_mode">Controller Mode</string>
+    <string name="controller_rb_joystick">Joystick</string>
+    <string name="controller_rb_mouse">Mouse</string>
     <string name="config_ip_address">IP Address</string>
     <string name="config_port">Port Number</string>
     <string name="config_test">Save</string>
