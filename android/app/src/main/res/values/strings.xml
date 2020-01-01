@@ -21,7 +21,10 @@
     <string name="debug_axis_rz">RZ-Axis</string>
     <string name="debug_throttle">Throttle</string>
     <string name="debug_brake">Brake</string>
+    <string name="debug_buttons">Buttons</string>
     <string name="debug_left_trigger">L-Trigger</string>
     <string name="debug_right_trigger">R-Trigger</string>
+    <string name="debug_send_signal">Send Motion Signal</string>
+    <string name="debug_send_button">Send Button Signal</string>
     <string name="debug_mode_toggle">Debug Mode</string>
 </resources>

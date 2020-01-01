@@ -18,222 +18,270 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/lblAxisZ"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/debug_axis_z"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lblAxisY" />
-
-    <TextView
-        android:id="@+id/lblThrottle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
-        android:text="@string/debug_throttle"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lblAxisRz" />
-
-    <TextView
-        android:id="@+id/lblBrake"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/debug_brake"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lblThrottle" />
-
-    <TextView
-        android:id="@+id/lblAxisRX"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="128dp"
+    <TableLayout
+        android:id="@+id/tableLayout"
+        android:layout_width="409dp"
+        android:layout_height="0dp"
         android:layout_marginTop="16dp"
-        android:text="@string/debug_axis_rx"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/lblAxisX"
-        app:layout_constraintTop_toBottomOf="@+id/text_notifications" />
-
-    <TextView
-        android:id="@+id/lblAxisRY"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="128dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/debug_axis_ry"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/lblAxisY"
-        app:layout_constraintTop_toBottomOf="@+id/lblAxisRX" />
-
-    <TextView
-        android:id="@+id/lblAxisRz"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="128dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/debug_axis_rz"
-        android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/lblAxisZ"
-        app:layout_constraintTop_toBottomOf="@+id/lblAxisRY" />
-
-    <TextView
-        android:id="@+id/lblAxisZVal"
-        style="@android:style/Widget.DeviceDefault.Light.TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="N/A"
-        android:textAlignment="textStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textDirection="ltr"
-        android:textIsSelectable="false"
-        app:layout_constraintStart_toEndOf="@+id/lblAxisZ"
-        app:layout_constraintTop_toBottomOf="@+id/lblAxisYVal" />
-
-    <TextView
-        android:id="@+id/lblAxisRxVal"
-        style="@android:style/Widget.DeviceDefault.Light.TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:text="N/A"
-        android:textAlignment="textStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textDirection="ltr"
-        android:textIsSelectable="false"
-        app:layout_constraintStart_toEndOf="@+id/lblAxisRX"
-        app:layout_constraintTop_toBottomOf="@+id/text_notifications" />
-
-    <TextView
-        android:id="@+id/lblThrottleVal"
-        style="@android:style/Widget.DeviceDefault.Light.TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
-        android:text="N/A"
-        android:textAlignment="textStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textDirection="ltr"
-        android:textIsSelectable="false"
-        app:layout_constraintStart_toEndOf="@+id/lblThrottle"
-        app:layout_constraintTop_toBottomOf="@+id/lblAxisRzVal" />
-
-    <TextView
-        android:id="@+id/lblBrakeVal"
-        style="@android:style/Widget.DeviceDefault.Light.TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="N/A"
-        android:textAlignment="textStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textDirection="ltr"
-        android:textIsSelectable="false"
-        app:layout_constraintStart_toEndOf="@+id/lblBrake"
-        app:layout_constraintTop_toBottomOf="@+id/lblThrottleVal" />
-
-    <TextView
-        android:id="@+id/lblAxisRyVal"
-        style="@android:style/Widget.DeviceDefault.Light.TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="N/A"
-        android:textAlignment="textStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textDirection="ltr"
-        android:textIsSelectable="false"
-        app:layout_constraintStart_toEndOf="@+id/lblAxisRY"
-        app:layout_constraintTop_toBottomOf="@+id/lblAxisRxVal" />
-
-    <TextView
-        android:id="@+id/lblAxisRzVal"
-        style="@android:style/Widget.DeviceDefault.Light.TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="N/A"
-        android:textAlignment="textStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textDirection="ltr"
-        android:textIsSelectable="false"
-        app:layout_constraintStart_toEndOf="@+id/lblAxisRz"
-        app:layout_constraintTop_toBottomOf="@+id/lblAxisRyVal" />
-
-    <TextView
-        android:id="@+id/lblAxisX"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/debug_axis_x"
-        android:textStyle="bold"
+        android:stretchColumns="*"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_notifications" />
+        app:layout_constraintTop_toBottomOf="@+id/text_notifications">
 
-    <TextView
-        android:id="@+id/lblAxisY"
-        android:layout_width="wrap_content"
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textAlignment="inherit">
+
+            <TextView
+                android:id="@+id/lblAxisX"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_axis_x"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/lblAxisY"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_axis_y"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/lblAxisZ"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_axis_z"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/lblAxisXVal"
+                style="@android:style/Widget.DeviceDefault.Light.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textDirection="ltr"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/lblAxisYVal"
+                style="@android:style/Widget.DeviceDefault.Light.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textDirection="ltr"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/lblAxisZVal"
+                style="@android:style/Widget.DeviceDefault.Light.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textDirection="ltr"
+                android:textIsSelectable="false" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/lblAxisRX"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_axis_rx"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/lblAxisRY"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_axis_ry"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/lblAxisRz"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_axis_rz"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/lblAxisRxVal"
+                style="@android:style/Widget.DeviceDefault.Light.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textDirection="ltr"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/lblAxisRyVal"
+                style="@android:style/Widget.DeviceDefault.Light.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textDirection="ltr"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/lblAxisRzVal"
+                style="@android:style/Widget.DeviceDefault.Light.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textDirection="ltr"
+                android:textIsSelectable="false" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/lblThrottle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_throttle"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/lblBrake"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_brake"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/lblButtons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/debug_buttons"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/lblThrottleVal"
+                style="@android:style/Widget.DeviceDefault.Light.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textDirection="ltr"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/lblBrakeVal"
+                style="@android:style/Widget.DeviceDefault.Light.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textDirection="ltr"
+                android:textIsSelectable="false" />
+
+            <TextView
+                android:id="@+id/lblButtonsVal"
+                style="@android:style/Widget.DeviceDefault.Light.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="N/A"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textDirection="ltr"
+                android:textIsSelectable="false" />
+        </TableRow>
+
+    </TableLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/debug_axis_y"
-        android:textStyle="bold"
+        android:layout_marginTop="32dp"
+        android:layoutDirection="rtl"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+        <CheckBox
+            android:id="@+id/cbDebugMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/debug_mode_toggle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="409dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:layout_marginEnd="1dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lblAxisX" />
+        app:layout_constraintTop_toBottomOf="@+id/tableLayout">
 
-    <TextView
-        android:id="@+id/lblAxisXVal"
-        style="@android:style/Widget.DeviceDefault.Light.TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:text="N/A"
-        android:textAlignment="textStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textDirection="ltr"
-        android:textIsSelectable="false"
-        app:layout_constraintStart_toEndOf="@+id/lblAxisX"
-        app:layout_constraintTop_toBottomOf="@+id/text_notifications" />
+        <Button
+            android:id="@+id/btnSendMotionSignal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:background="@color/design_default_color_primary"
+            android:text="@string/debug_send_signal" />
 
-    <TextView
-        android:id="@+id/lblAxisYVal"
-        style="@android:style/Widget.DeviceDefault.Light.TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="N/A"
-        android:textAlignment="textStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textDirection="ltr"
-        android:textIsSelectable="false"
-        app:layout_constraintStart_toEndOf="@+id/lblAxisY"
-        app:layout_constraintTop_toBottomOf="@+id/lblAxisXVal" />
-
-    <CheckBox
-        android:id="@+id/cbDebugMode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
-        android:text="@string/debug_mode_toggle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lblBrake" />
+        <Button
+            android:id="@+id/btnSendButtonSignal"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="32dp"
+            android:background="@color/design_default_color_primary"
+            android:text="@string/debug_send_button" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
