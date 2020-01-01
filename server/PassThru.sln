@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PT.Common", "PT.Common\PT.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PT.WebApi", "PT.WebApi\PT.WebApi.csproj", "{76E9ED90-11C6-4BD0-9ABE-0CAD5E39C363}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PT.MouseFeeder", "PT.MouseFeeder\PT.MouseFeeder.csproj", "{1BDCD710-7C63-4173-945D-7DD3B0F41F5B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{76E9ED90-11C6-4BD0-9ABE-0CAD5E39C363}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76E9ED90-11C6-4BD0-9ABE-0CAD5E39C363}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76E9ED90-11C6-4BD0-9ABE-0CAD5E39C363}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BDCD710-7C63-4173-945D-7DD3B0F41F5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BDCD710-7C63-4173-945D-7DD3B0F41F5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BDCD710-7C63-4173-945D-7DD3B0F41F5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BDCD710-7C63-4173-945D-7DD3B0F41F5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

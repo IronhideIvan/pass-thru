@@ -8,7 +8,8 @@ namespace PT.Feeder
   public class UdpModeRunner : IModeRunner
   {
     private IAppLogger _logger = ServiceProvider.Get<IAppLogger>().Configure(typeof(Program));
-    private IFeeder _feeder = ServiceProvider.Get<IFeeder>();
+    private IInputFeeder _inputFeeder = ServiceProvider.Get<IInputFeeder>();
+    private IMouseFeeder _mouseFeeder = ServiceProvider.Get<IMouseFeeder>();
     private IUdpSocket _udpSocket = ServiceProvider.Get<IUdpSocket>();
 
     public void Run(string[] args)
@@ -16,7 +17,7 @@ namespace PT.Feeder
       var parsedArgs = PTFeederArgs.ParseCommandLineArgs(args);
 
       _logger.GlobalConfig(parsedArgs.LogLevel);
-      _feeder.Connect(parsedArgs.DeviceId);
+      _inputFeeder.Connect(parsedArgs.DeviceId);
       _udpSocket.InitializeServer(parsedArgs.UdpAddress, parsedArgs.UdpPort, UdpCallback);
 
       _logger.Info($"UDP Server Initialized on {parsedArgs.UdpAddress}:{parsedArgs.UdpPort}");
@@ -39,6 +40,9 @@ namespace PT.Feeder
             case PayloadType.Controller:
               HandleControllerPayload(payloadObj.Payload);
               break;
+            case PayloadType.Mouse:
+              HandleControllerPayload(payloadObj.Payload);
+              break;
             default:
               _logger.Warn($"Unknown payload type: {payloadObj.Type.ToString()}");
               _logger.Debug($"Payload: {payload}");
@@ -59,8 +63,14 @@ namespace PT.Feeder
 
     private void HandleControllerPayload(string payload)
     {
-      InputReport inputReport = JsonConvert.DeserializeObject<InputReport>(payload);
-      _feeder.Feed(inputReport);
+      var inputReport = JsonConvert.DeserializeObject<InputReport>(payload);
+      _inputFeeder.Feed(inputReport);
+    }
+
+    private void HandleMousePayload(string payload)
+    {
+      var mouseReport = JsonConvert.DeserializeObject<MouseReport>(payload);
+      _mouseFeeder.Feed(mouseReport);
     }
   }
 }

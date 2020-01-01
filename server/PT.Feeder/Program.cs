@@ -40,8 +40,9 @@ namespace PT.Feeder
     {
       var provider = ServiceProvider.Instance;
       provider.RegisterTransient<IAppLogger, ConsoleLogger>();
-      provider.RegisterTransient<IFeeder, VJoyFeeder>();
+      provider.RegisterTransient<IInputFeeder, vJoyFeeder.Feeder>();
       provider.RegisterTransient<IUdpSocket, UdpSocket>();
+      provider.RegisterTransient<IMouseFeeder, PT.MouseFeeder.Feeder>();
     }
   }
 }

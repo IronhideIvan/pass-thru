@@ -9,9 +9,9 @@ using System.Threading;
 
 namespace PT.vJoyFeeder
 {
-  public class VJoyFeeder : IFeeder
+  public class Feeder : IInputFeeder
   {
-    private static readonly IAppLogger _logger = ServiceProvider.Get<IAppLogger>().Configure(typeof(VJoyFeeder));
+    private static readonly IAppLogger _logger = ServiceProvider.Get<IAppLogger>().Configure(typeof(Feeder));
     private readonly ConcurrentQueue<InputReport> _backgroundQueue = new ConcurrentQueue<InputReport>();
 
     private vJoy _joystick;
@@ -179,7 +179,7 @@ namespace PT.vJoyFeeder
           }
 
           var buttonReport = inputReport.ButtonReport ?? new ButtonReport();
-          var axisReport = inputReport.AxisReport ?? new AxisReport { Axis1 = new Axis(), Axis2 = new Axis() };
+          var axisReport = inputReport.AxisReport ?? new InputAxisReport { Axis1 = new Axis(), Axis2 = new Axis() };
 
           if (_axisX)
           {

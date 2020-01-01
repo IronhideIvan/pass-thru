@@ -7,16 +7,21 @@ namespace PT.Feeder
   public class SampleModeRunner : IModeRunner
   {
     private static IAppLogger _logger;
-    private static IFeeder _feeder;
 
     public void Run(string[] args)
     {
       _logger = ServiceProvider.Get<IAppLogger>().Configure(typeof(Program));
-      _feeder = ServiceProvider.Get<IFeeder>();
+
+      TestMouseFeeder();
+    }
+
+    private void TestInputFeeder()
+    {
+      var feeder = ServiceProvider.Get<IInputFeeder>();
 
       try
       {
-        _feeder.Connect("1");
+        feeder.Connect("1");
       }
       catch (Exception ex)
       {
@@ -26,7 +31,7 @@ namespace PT.Feeder
       var report = new InputReport
       {
         ButtonReport = new ButtonReport(),
-        AxisReport = new AxisReport
+        AxisReport = new InputAxisReport
         {
           Axis1 = new Axis(),
           Axis2 = new Axis()
@@ -38,12 +43,27 @@ namespace PT.Feeder
         while (true)
         {
           report.ButtonReport.Buttons = 4;
-          _feeder.Feed(report);
+          feeder.Feed(report);
           System.Threading.Thread.Sleep(20);
           report.ButtonReport.Buttons = 0;
-          _feeder.Feed(report);
+          feeder.Feed(report);
           System.Threading.Thread.Sleep(20);
         }
+      }
+      catch (Exception ex)
+      {
+        _logger.Error(ex.Message);
+      }
+      Console.ReadKey();
+    }
+
+    private void TestMouseFeeder()
+    {
+      var feeder = ServiceProvider.Get<IMouseFeeder>();
+
+      try
+      {
+        feeder.Feed(new MouseReport());
       }
       catch (Exception ex)
       {

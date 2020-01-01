@@ -55,6 +55,16 @@ namespace PT.Common
 
         // Mouse
         case 'M':
+          payload.Type = PayloadType.Mouse;
+          if (strPayload.Length > 1)
+          {
+            payload.Payload = strPayload.Substring(1);
+          }
+          else
+          {
+            return payload;
+          }
+          break;
 
         // Heartbeat
         case 'H':
