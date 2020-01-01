@@ -68,7 +68,7 @@ namespace PT.Common
         string payload = Encoding.ASCII.GetString(so.buffer, 0, bytes);
         if (LogLevel.Debug <= _logger.LogLevel)
         {
-          _logger.Debug($"RECV: {DateTime.Now.TimeOfDay.TotalMilliseconds.ToString()}");
+          _logger.Debug($"RECV: {payload}");
         }
         if (callback != null)
         {
