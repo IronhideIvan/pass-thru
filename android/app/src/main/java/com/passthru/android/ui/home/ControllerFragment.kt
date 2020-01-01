@@ -75,7 +75,7 @@ class ControllerFragment : Fragment() {
             }
             else{
                 UdpHelper.disconnect()
-                statusLabel.setText("Disconnected")
+                statusLabel.setText("Not connected")
                 Toast.makeText(context, "Disconnected", Toast.LENGTH_SHORT).show()
             }
         }
