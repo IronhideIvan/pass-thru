@@ -39,6 +39,7 @@ namespace PT.vJoyFeeder
     private int _nButtons;
     private int _contPovNumber;
     private int _discPovNumber;
+    private int _reconnectCount = 0;
 
 
     public void Connect(string deviceId)
@@ -195,8 +196,40 @@ namespace PT.vJoyFeeder
 
       if (!_joystick.UpdateVJD(_deviceId, ref report))
       {
-        throw new PTGenericException($"Failed to feed vJoy device number '{_deviceId}'. Try reconnecting the device.");
+        if (!TryReconnect() || !_joystick.UpdateVJD(_deviceId, ref report))
+        {
+          throw new PTGenericException($"Failed to feed vJoy device number '{_deviceId}'. Try reconnecting the device.");
+        }
       }
+    }
+
+    private bool TryReconnect()
+    {
+      int maxRecconectCount = 3;
+      if (_reconnectCount >= maxRecconectCount)
+      {
+        return false;
+      }
+
+      while (_reconnectCount < maxRecconectCount)
+      {
+        try
+        {
+          ++_reconnectCount;
+          Connect(_deviceId.ToString());
+        }
+        catch (Exception ex)
+        {
+          _logger.Error(ex.Message);
+        }
+      }
+
+      if (_reconnectCount < 3)
+      {
+        _reconnectCount = 0;
+      }
+
+      return _reconnectCount < 3;
     }
 
     private int GetAxisValue(float axis, long min, long max)
