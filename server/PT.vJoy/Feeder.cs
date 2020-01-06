@@ -16,29 +16,29 @@ namespace PT.vJoyFeeder
 
     private vJoy _joystick;
     private uint _deviceId = 0;
-    private Task _backgroundWorker;
 
-    bool _axisX;
-    long _axisMaxX;
-    long _axisMinX;
-    bool _axisY;
-    long _axisMaxY;
-    long _axisMinY;
-    bool _axisZ;
-    long _axisMaxZ;
-    long _axisMinZ;
-    bool _axisRX;
-    long _axisMaxRX;
-    long _axisMinRX;
-    bool _axisRY;
-    long _axisMaxRY;
-    long _axisMinRY;
-    bool _axisRZ;
-    long _axisMaxRZ;
-    long _axisMinRZ;
-    int _nButtons;
-    int _contPovNumber;
-    int _discPovNumber;
+    private long _previousMessageId;
+    private bool _axisX;
+    private long _axisMaxX;
+    private long _axisMinX;
+    private bool _axisY;
+    private long _axisMaxY;
+    private long _axisMinY;
+    private bool _axisZ;
+    private long _axisMaxZ;
+    private long _axisMinZ;
+    private bool _axisRX;
+    private long _axisMaxRX;
+    private long _axisMinRX;
+    private bool _axisRY;
+    private long _axisMaxRY;
+    private long _axisMinRY;
+    private bool _axisRZ;
+    private long _axisMaxRZ;
+    private long _axisMinRZ;
+    private int _nButtons;
+    private int _contPovNumber;
+    private int _discPovNumber;
 
 
     public void Connect(string deviceId)
@@ -149,77 +149,53 @@ namespace PT.vJoyFeeder
         throw new PTGenericException("vJoy not initialized. Cannot feed inputs.");
       }
 
-      if (_backgroundWorker == null)
+      if (genericReport == null || _previousMessageId > genericReport.MessageTimestamp)
       {
-        _backgroundWorker = Task.Factory.StartNew(() => BackgroundWorker_DoWork());
+        // If we've already processed a message from a future point in time,
+        // then discard this message as it's no longer valid.
+        return;
       }
 
-      if (_backgroundWorker.IsFaulted)
-      {
-        throw new PTGenericException(_backgroundWorker.Exception.Message);
-      }
+      var buttonReport = genericReport.ButtonReport ?? new ButtonReport();
+      var axisReport = genericReport.AxisReport ?? new InputAxisReport { Axis1 = new Axis(), Axis2 = new Axis() };
 
-      _backgroundQueue.Enqueue(genericReport);
-    }
-
-    private Action BackgroundWorker_DoWork()
-    {
       vJoy.JoystickState report = new vJoy.JoystickState();
-      InputReport inputReport;
-      long previousId = long.MinValue;
-      while (true)
+
+      if (_axisX)
       {
-        if (_backgroundQueue.TryDequeue(out inputReport))
-        {
-          if (inputReport == null || previousId > inputReport.MessageTimestamp)
-          {
-            // If we've already processed a message from a future point in time,
-            // then discard this message as it's no longer valid.
-            continue;
-          }
+        report.AxisX = GetAxisValue(axisReport.Axis1.X, _axisMinX, _axisMaxX);
+      }
 
-          var buttonReport = inputReport.ButtonReport ?? new ButtonReport();
-          var axisReport = inputReport.AxisReport ?? new InputAxisReport { Axis1 = new Axis(), Axis2 = new Axis() };
+      if (_axisY)
+      {
+        report.AxisY = GetAxisValue(axisReport.Axis1.Y, _axisMinY, _axisMaxY);
+      }
 
-          if (_axisX)
-          {
-            report.AxisX = GetAxisValue(axisReport.Axis1.X, _axisMinX, _axisMaxX);
-          }
+      if (_axisZ)
+      {
+        report.AxisZ = GetAxisValue(axisReport.Axis1.Z, _axisMinZ, _axisMaxZ);
+      }
 
-          if (_axisY)
-          {
-            report.AxisY = GetAxisValue(axisReport.Axis1.Y, _axisMinY, _axisMaxY);
-          }
+      if (_axisRX)
+      {
+        report.AxisXRot = GetAxisValue(axisReport.Axis2.X, _axisMinRX, _axisMaxRX);
+      }
 
-          if (_axisZ)
-          {
-            report.AxisZ = GetAxisValue(axisReport.Axis1.Z, _axisMinZ, _axisMaxZ);
-          }
+      if (_axisRY)
+      {
+        report.AxisYRot = GetAxisValue(axisReport.Axis2.Y, _axisMinRY, _axisMaxRY);
+      }
 
-          if (_axisRX)
-          {
-            report.AxisXRot = GetAxisValue(axisReport.Axis2.X, _axisMinRX, _axisMaxRX);
-          }
+      if (_axisRZ)
+      {
+        report.AxisZRot = GetAxisValue(axisReport.Axis2.Z, _axisMinRZ, _axisMaxRZ);
+      }
 
-          if (_axisRY)
-          {
-            report.AxisYRot = GetAxisValue(axisReport.Axis2.Y, _axisMinRY, _axisMaxRY);
-          }
+      report.Buttons = (uint)buttonReport.Buttons;
 
-          if (_axisRZ)
-          {
-            report.AxisZRot = GetAxisValue(axisReport.Axis2.Z, _axisMinRZ, _axisMaxRZ);
-          }
-
-          report.Buttons = (uint)buttonReport.Buttons;
-
-          if (!_joystick.UpdateVJD(_deviceId, ref report))
-          {
-            throw new PTGenericException($"Failed to feed vJoy device number '{_deviceId}'. Try reconnecting the device.");
-          }
-
-          Thread.Sleep(10);
-        }
+      if (!_joystick.UpdateVJD(_deviceId, ref report))
+      {
+        throw new PTGenericException($"Failed to feed vJoy device number '{_deviceId}'. Try reconnecting the device.");
       }
     }
 
