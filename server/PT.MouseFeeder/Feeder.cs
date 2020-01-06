@@ -1,5 +1,7 @@
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using PT.Common;
 
 namespace PT.MouseFeeder
@@ -11,6 +13,8 @@ namespace PT.MouseFeeder
     private Win32.MONITORINFOEX _monitorInfo;
     private bool _isConnected = false;
     private long _previousMessageTimestamp;
+    private Task _backgroundWorker;
+    private MouseReport _mouseReport = new MouseReport();
 
     public void Connect()
     {
@@ -47,53 +51,102 @@ namespace PT.MouseFeeder
 
       _previousMessageTimestamp = mouseReport.MessageTimestamp;
 
-      Win32.POINT cursorPos;
-      if (!Win32.GetCursorPos(out cursorPos))
-      {
-        _logger.Info("Unable to determine cursor position.");
-        return;
-      }
-
       // Determine the distance that will be moved.
-      var velocity = mouseReport.Velocity ?? new Axis();
-      var motion = new Axis();
+      _mouseReport = mouseReport;
 
-      motion.X = GetDistanceMoved(velocity.X, _monitorInfo.rcMonitor.right);
-      motion.Y = GetDistanceMoved(velocity.Y, _monitorInfo.rcMonitor.bottom);
-
-      cursorPos.x += (int)motion.X;
-      cursorPos.y += (int)motion.Y;
-
-      if (cursorPos.x < 0)
+      if (_backgroundWorker == null || _backgroundWorker.IsCompletedSuccessfully)
       {
-        cursorPos.x = 0;
+        _backgroundWorker = Task.Factory.StartNew(() => BackgroundWorker_DoWork());
       }
-      else if (cursorPos.x > _monitorInfo.rcMonitor.right)
+      else if (_backgroundWorker.IsFaulted)
       {
-        cursorPos.x = _monitorInfo.rcMonitor.right;
+        throw new PTGenericException(_backgroundWorker.Exception.Message);
       }
+    }
 
-      if (cursorPos.y < 0)
+    private void BackgroundWorker_DoWork()
+    {
+      // We will likely be looping over the same message multiple times
+      // to move the cursor. So we need to make sure we don't hammer the
+      // mouse buttons.
+      long lastHandledMessageTimestamp = 0;
+      Win32.RECT monitorBounds = new Win32.RECT
       {
-        cursorPos.y = 0;
-      }
-      else if (cursorPos.y > _monitorInfo.rcMonitor.bottom)
-      {
-        cursorPos.y = _monitorInfo.rcMonitor.bottom;
-      }
+        top = _monitorInfo.rcMonitor.top + 3,
+        left = _monitorInfo.rcMonitor.left + 3,
+        right = _monitorInfo.rcMonitor.right - 3,
+        bottom = _monitorInfo.rcMonitor.bottom - 3
+      };
+      int refreshRate = 16;
 
-      Win32.SetCursorPos(cursorPos.x, cursorPos.y);
-
-      if (mouseReport.Click)
+      while (true)
       {
-        int buttonsClicked = GetMouseClicks(mouseReport.Buttons);
-        if (buttonsClicked > 0)
+        var mouseReport = _mouseReport;
+        var motion = new Axis();
+        var velocity = mouseReport?.Velocity ?? new Axis();
+
+        if (mouseReport == null)
         {
-          Win32.mouse_event((uint)buttonsClicked, (uint)cursorPos.x, (uint)cursorPos.y, 0, 0);
+          break;
+        }
+
+        Win32.POINT cursorPos;
+        if (!Win32.GetCursorPos(out cursorPos))
+        {
+          _logger.Info("Unable to determine cursor position.");
+          return;
+        }
+
+        motion.X = GetDistanceMoved(velocity.X, Math.Abs(monitorBounds.right - monitorBounds.left), refreshRate);
+        motion.Y = GetDistanceMoved(velocity.Y, Math.Abs(monitorBounds.top - monitorBounds.bottom), refreshRate);
+
+        cursorPos.x += (int)motion.X;
+        cursorPos.y += (int)motion.Y;
+
+        if (cursorPos.x < monitorBounds.left)
+        {
+          cursorPos.x = monitorBounds.left;
+        }
+        else if (cursorPos.x > monitorBounds.right)
+        {
+          cursorPos.x = monitorBounds.right;
+        }
+
+        if (cursorPos.y < monitorBounds.top)
+        {
+          cursorPos.y = monitorBounds.top;
+        }
+        else if (cursorPos.y > monitorBounds.bottom)
+        {
+          cursorPos.y = monitorBounds.bottom;
+        }
+
+        Win32.SetCursorPos(cursorPos.x, cursorPos.y);
+
+        if (mouseReport.Click && mouseReport.Buttons != null && mouseReport.MessageTimestamp > lastHandledMessageTimestamp)
+        {
+          int buttonsClicked = GetMouseClicks(mouseReport.Buttons);
+          if (buttonsClicked > 0)
+          {
+            Win32.mouse_event((uint)buttonsClicked, (uint)cursorPos.x, (uint)cursorPos.y, 0, 0);
+          }
+
+          lastHandledMessageTimestamp = mouseReport.MessageTimestamp;
+        }
+
+        _logger.Debug($"Cursor Position: ({cursorPos.x}, {cursorPos.y})");
+
+        // If we've reached the max screen position, then don't worry about refreshing again.
+        if ((cursorPos.x == monitorBounds.left || cursorPos.x == monitorBounds.right || motion.X == 0.0f)
+          && (cursorPos.y == monitorBounds.top || cursorPos.y == monitorBounds.bottom || motion.Y == 0.0f))
+        {
+          break;
+        }
+        else
+        {
+          Thread.Sleep(refreshRate);
         }
       }
-
-      _logger.Debug($"Cursor Position: ({cursorPos.x}, {cursorPos.y})");
     }
 
     [Flags]
@@ -115,23 +168,21 @@ namespace PT.MouseFeeder
       {
         buttons += Win32.DWORD_FLAGS.MOUSEEVENTF_LEFTUP;
       }
-      // else if ((report.Buttons & (int)MouseButtons.RightClick) > 0)
-      // {
-      //   buttons += Win32.DWORD_FLAGS.MOUSEEVENTF_RIGHTDOWN;
-      // }
-      // else if ((report.Buttons & (int)MouseButtons.RightClick) == 0)
-      // {
-      //   buttons += Win32.DWORD_FLAGS.MOUSEEVENTF_RIGHTUP;
-      // }
 
       return buttons;
     }
 
-    public int GetDistanceMoved(float axis, long max)
+    public int GetDistanceMoved(float axisSpeed, long max, int timeMilliseconds)
     {
-      float absAxis = Math.Abs(axis);
+      if (axisSpeed == 0.0f)
+      {
+        return 0;
+      }
+
+      float absAxis = Math.Abs(axisSpeed);
       int motion = 0;
-      long speed = max / 16;
+      int timeDelta = 1000 / timeMilliseconds;
+      long maxSpeed = (max / 2) / timeDelta;
 
       // we want to ignore very minor movements of the axis so that
       // the mouse doesnt jitter around at the slightest motion.
@@ -140,15 +191,15 @@ namespace PT.MouseFeeder
         return motion;
       }
 
-      motion = (int)((absAxis - 0.1) * speed);
+      motion = (int)((absAxis - 0.1) * maxSpeed);
 
       // Overflow checking
-      if (motion > speed || motion < 0)
+      if (motion > maxSpeed || motion < 0)
       {
         motion = 0;
       }
 
-      return axis >= 0 ? motion : -motion;
+      return axisSpeed > 0 ? motion : -motion;
     }
   }
 }
