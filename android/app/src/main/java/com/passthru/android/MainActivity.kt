@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     catch (e: Exception){
                         ++errCount
-                        exception = e;
+                        exception = e
                     }
 
                     if(errCount > 5){

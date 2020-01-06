@@ -9,8 +9,7 @@ class ButtonReport : Serializable {
         return this.buttons == other.buttons
     }
 
-    fun copy(other: ButtonReport): ButtonReport{
+    fun copy(other: ButtonReport) {
         this.buttons = other.buttons
-        return this
     }
 }

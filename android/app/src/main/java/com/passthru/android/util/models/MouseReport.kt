@@ -12,10 +12,15 @@ class MouseReport {
                 && click == other.click
     }
 
-    fun copy(other: MouseReport): MouseReport{
+    fun clone(): MouseReport {
+        val temp = MouseReport()
+        temp.copy(this)
+        return temp
+    }
+
+    fun copy(other: MouseReport) {
         buttons.copy(other.buttons)
         velocity.copy(other.velocity)
         click = other.click
-        return this
     }
 }

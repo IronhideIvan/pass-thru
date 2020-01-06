@@ -8,7 +8,7 @@ import com.passthru.android.util.models.MouseReport
 class MouseHelper {
     fun convert(e: KeyEvent, immutableReport: MouseReport): MouseReport {
 
-        val report = MouseReport().copy(immutableReport)
+        val report = immutableReport.clone()
         val buttonReport = report.buttons
 
         var buttonId = 0
@@ -37,7 +37,7 @@ class MouseHelper {
 
     fun convert(e: MotionEvent, immutableReport: MouseReport, historyPos: Int): MouseReport{
 
-        val fullReport= MouseReport().copy(immutableReport)
+        val fullReport= immutableReport.clone()
         fullReport.click = false
         val axis = fullReport.velocity
 

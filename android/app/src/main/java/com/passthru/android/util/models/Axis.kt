@@ -13,6 +13,12 @@ class Axis: Serializable {
                 && z == other.z
     }
 
+    fun clone(): Axis {
+        val temp = Axis()
+        temp.copy(this)
+        return temp
+    }
+
     fun copy(other: Axis){
         this.x = other.x
         this.y = other.y

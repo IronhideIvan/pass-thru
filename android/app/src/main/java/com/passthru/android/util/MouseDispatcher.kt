@@ -4,37 +4,38 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import com.google.gson.Gson
+import com.passthru.android.util.models.Axis
+import com.passthru.android.util.models.ButtonReport
 import com.passthru.android.util.models.MouseReport
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 object MouseDispatcher {
     private val mouseHelper: MouseHelper = MouseHelper()
     private var mouseReport: MouseReport = MouseReport()
-    private val queue = LinkedList<MouseReport>()
-    private var clearInputs: Boolean = false
+    private val buttonQueue = LinkedList<ButtonReport>()
+    private var mouseVelocity = Axis()
+    private var clearInputs: AtomicBoolean = AtomicBoolean(false)
 
     fun dispatchMotionEvent(ev: MotionEvent): MouseReport? {
-        var mrOrig: MouseReport = MouseReport().copy(mouseReport)
-        var mr: MouseReport = MouseReport().copy(mouseReport)
-        var mrLLast = mouseHelper.convert(ev, mouseReport, -1)
-        mouseReport = mouseReport.copy(mrLLast)
+        val mrOrig = mouseReport.velocity.clone()
+        var mr: MouseReport = mouseHelper.convert(ev, mouseReport, -1)
+
+        mouseReport.copy(mr)
 
         if(!UdpHelper.isConnected()){
             return null
         }
 
+        var mrLoop = mr.clone()
         (0 until ev.historySize).forEach {i ->
-            mr = mouseHelper.convert(ev, mr, i)
-            if(!mr.velocity.areEqual(mrOrig.velocity)){
-                queue.addLast(mr)
-            }
+            var mrLoop = mouseHelper.convert(ev, mrLoop, i)
+            mouseVelocity = mrLoop.velocity.clone()
         }
 
-        if(!mrOrig.velocity.areEqual(mrLLast.velocity)){
-            queue.addLast(mrLLast)
-        }
+        mouseVelocity = mr.velocity.clone()
 
-        return mrLLast
+        return mr
     }
 
     fun dispatchKeyEvent(event: KeyEvent): MouseReport? {
@@ -43,75 +44,56 @@ object MouseDispatcher {
         }
 
         val mr = mouseHelper.convert(event, mouseReport)
-        mouseReport = mouseReport.copy(mr)
+        mouseReport.buttons.copy(mr.buttons)
 
         if(!UdpHelper.isConnected()){
             return null
         }
 
         if(mr.click){
-            queue.addLast(mr)
+            buttonQueue.addLast(mr.buttons)
         }
 
         return mr
     }
 
     fun clearInputs(){
-        clearInputs = true
+        clearInputs.set(true)
     }
 
+    private var lastSentVelocity: Axis = Axis()
     @Synchronized fun checkAndSendInputMessage() {
-        val queueSize = queue.size
         val debugMode = Globals.debugMode.get()
-        if ((clearInputs || queueSize > 0) && UdpHelper.isConnected()) {
-            // Events might be appending to the queue while we are reading it, so we want to
-            // only work with what we have at this very moment
+        var currentVelocity = mouseVelocity.clone()
+        if ((clearInputs.get() || buttonQueue.size > 0 || !currentVelocity.areEqual(lastSentVelocity)) && UdpHelper.isConnected()) {
             val mrToSend = MouseReport()
 
             if(debugMode){
-                Log.d("Queue", "Size: " + queueSize.toString())
+                Log.d("Queue", "Size: ${buttonQueue.size}")
             }
 
-            if(clearInputs){
-                queue.clear()
-                clearInputs = false
+            if (clearInputs.get()){
+                buttonQueue.clear()
+                clearInputs.set(false)
             }
-            else if (queueSize == 1) {
-                mrToSend.copy(queue.removeFirst())
-            } else {
-                val lastReport = queue[queueSize - 1]
-                var firstReport = queue.removeFirst()
-
-                // We always send the first button and last axis reports
-                mrToSend.velocity.copy((lastReport.velocity))
-                mrToSend.buttons.copy(firstReport.buttons)
-                mrToSend.click = firstReport.click
-
-                // We only care about the last motion inputs since a half millimeter of motion
-                // is negligible and would only serve to overload the server with too many events
-                // to process
-                mrToSend.velocity.copy(lastReport.velocity)
-
-                var index = 1
-                while (index < queueSize) {
-                    var currentReport = queue[0]
-                    if(!currentReport.click){
-                        queue.removeFirst()
-                    }
-
-                    ++index
+            else {
+                if(buttonQueue.size > 0){
+                    mrToSend.buttons.copy(buttonQueue.removeFirst())
+                    mrToSend.click = true
                 }
+
+                mrToSend.velocity.copy(mouseVelocity)
+                lastSentVelocity = currentVelocity
             }
 
-            // Avoid sending the same thing multiple times to reduce bandwidth
             mrToSend.messageTimestamp = System.currentTimeMillis()
             val json = toJson(mrToSend)
 
             if(debugMode){
-                Log.d("Queue", "Packet: " + json)
+                Log.d("Queue", "Packet: $json")
             }
 
-            UdpHelper.sendUdp("M" + json)
+            UdpHelper.sendUdp("M$json")
         }
     }
 
