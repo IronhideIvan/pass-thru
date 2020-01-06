@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
             threadLaunched = true
             threadScope.launch {
                 var errCount: Int = 0
-                var exception: Exception = null;
+                lateinit var exception: Exception;
                 while(true){
                     try{
                         ActionDispatcher.checkAndSendInputMessage()
