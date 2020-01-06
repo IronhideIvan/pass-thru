@@ -18,7 +18,6 @@ object MouseDispatcher {
     private var clearInputs: AtomicBoolean = AtomicBoolean(false)
 
     fun dispatchMotionEvent(ev: MotionEvent): MouseReport? {
-        val mrOrig = mouseReport.velocity.clone()
         var mr: MouseReport = mouseHelper.convert(ev, mouseReport, -1)
 
         mouseReport.copy(mr)

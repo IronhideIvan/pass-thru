@@ -134,8 +134,6 @@ namespace PT.MouseFeeder
           lastHandledMessageTimestamp = mouseReport.MessageTimestamp;
         }
 
-        _logger.Debug($"Cursor Position: ({cursorPos.x}, {cursorPos.y})");
-
         // If we've reached the max screen position, then don't worry about refreshing again.
         if ((cursorPos.x == monitorBounds.left || cursorPos.x == monitorBounds.right || motion.X == 0.0f)
           && (cursorPos.y == monitorBounds.top || cursorPos.y == monitorBounds.bottom || motion.Y == 0.0f))
