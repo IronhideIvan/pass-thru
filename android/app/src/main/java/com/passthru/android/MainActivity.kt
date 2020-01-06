@@ -51,6 +51,7 @@ class MainActivity : AppCompatActivity() {
             threadLaunched = true
             threadScope.launch {
                 var errCount: Int = 0
+                var exception: Exception = null;
                 while(true){
                     try{
                         ActionDispatcher.checkAndSendInputMessage()
@@ -58,11 +59,11 @@ class MainActivity : AppCompatActivity() {
                     }
                     catch (e: Exception){
                         ++errCount
-                        Log.e("CoroutineScope", e.message!!)
+                        exception = e;
                     }
 
                     if(errCount > 5){
-                        throw Exception("Coroutine failed too many times consecutively, aborting program")
+                        throw Exception("Coroutine failed too many times consecutively, aborting program.", exception)
                     }
 
                     delay(10)
