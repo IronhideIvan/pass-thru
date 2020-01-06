@@ -15,11 +15,16 @@ class AxisReport : Serializable {
                 && brake == other.brake
     }
 
-    fun copy(other: AxisReport): AxisReport{
+    fun clone(): AxisReport {
+        val temp = AxisReport()
+        temp.copy(this)
+        return temp
+    }
+
+    fun copy(other: AxisReport){
         axis1.copy(other.axis1)
         axis2.copy(other.axis2)
         this.throttle = other.throttle
         this.brake = other.brake
-        return this
     }
 }

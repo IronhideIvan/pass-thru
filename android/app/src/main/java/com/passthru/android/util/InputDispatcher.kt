@@ -4,32 +4,57 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import com.google.gson.Gson
+import com.passthru.android.util.models.AxisReport
+import com.passthru.android.util.models.ButtonReport
 import com.passthru.android.util.models.InputReport
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 object InputDispatcher {
     private val inputHelper: InputHelper = InputHelper()
     private var inputReport: InputReport = InputReport()
-    private val queue = LinkedList<InputReport>()
-    private var clearInputs: Boolean = false
+    private var clearInputs: AtomicBoolean = AtomicBoolean(false)
+    private var inputAxis = AxisReport()
+    private val buttonQueue = LinkedList<ButtonReport>()
 
     fun dispatchMotionEvent(ev: MotionEvent): InputReport? {
-        var pte: InputReport = InputReport().copy(inputReport)
-        var pteLast = inputHelper.convert(ev, inputReport, -1)
-        inputReport = pteLast
-        debugInputReport(pte)
+        var btnReport = inputHelper.convertButtonsFromMotionEvent(ev, inputReport, -1)
+        var axisReport = inputHelper.convert(ev, inputReport.axisReport, -1)
+
+        val inputReportLast = InputReport()
+        inputReportLast.axisReport.copy(axisReport)
+        inputReportLast.buttonReport.copy(btnReport)
+        debugInputReport(inputReportLast)
 
         if(!UdpHelper.isConnected()){
             return null
         }
 
+        var inputReportLoop = inputReport.clone()
+        var loopHit = false
         (0 until ev.historySize).forEach {i ->
-            pte = inputHelper.convert(ev, pte, i)
-            queue.addLast(pte)
+            loopHit = true
+            inputReportLoop.axisReport.copy(inputHelper.convert(ev, inputReportLoop.axisReport, i))
+
+            val previousButtonReport = inputReportLoop.buttonReport.clone()
+            inputReportLoop.buttonReport.copy(inputHelper.convertButtonsFromMotionEvent(ev, inputReportLoop, i))
+
+            inputAxis = inputReportLoop.axisReport.clone()
+            if(!inputReportLoop.buttonReport.areEqual(previousButtonReport)){
+                buttonQueue.addLast(inputReportLoop.buttonReport.clone())
+            }
         }
 
-        queue.addLast(pteLast)
-        return pteLast
+        inputAxis = inputReportLast.axisReport.clone()
+
+        if((loopHit && !inputReportLast.buttonReport.areEqual(inputReportLoop.buttonReport))
+            || (!loopHit && !inputReport.buttonReport.areEqual(inputReportLast.buttonReport))){
+            buttonQueue.addLast(inputReportLast.buttonReport.clone())
+        }
+
+        inputReport = inputReportLast
+
+        return inputReportLast
     }
 
     fun dispatchKeyEvent(event: KeyEvent): InputReport? {
@@ -37,78 +62,67 @@ object InputDispatcher {
             return null
         }
 
-        val pte = inputHelper.convert(event, inputReport)
-        inputReport = inputReport.copy(pte)
-        debugInputReport(pte)
+        val tempInputReport = inputReport.clone()
+        val btnReport = inputHelper.convert(event, tempInputReport.buttonReport)
+        tempInputReport.buttonReport.copy(btnReport)
+
+        debugInputReport(tempInputReport)
 
         if(!UdpHelper.isConnected()){
             return null
         }
 
-        queue.addLast(pte)
-        return pte
+        if(!tempInputReport.buttonReport.areEqual(inputReport.buttonReport)){
+            buttonQueue.addLast(btnReport.clone())
+        }
+
+        inputReport = tempInputReport.clone()
+        return tempInputReport
     }
 
     fun clearInputs(){
-        clearInputs = true
+        clearInputs.set(true)
     }
 
+    private var lastSentReport = InputReport()
     @Synchronized fun checkAndSendInputMessage() {
-        val queueSize = queue.size
         val debugMode = Globals.debugMode.get()
-        if ((clearInputs || queueSize > 0) && UdpHelper.isConnected()) {
+
+        val currentAxis = inputAxis.clone()
+        if ((clearInputs.get() || buttonQueue.size > 0 || !currentAxis.areEqual(lastSentReport.axisReport)) && UdpHelper.isConnected()) {
             // Events might be appending to the queue while we are reading it, so we want to
             // only work with what we have at this very moment
             val qteToSend = InputReport()
 
             if(debugMode){
-                Log.d("Queue", "Size: " + queueSize.toString())
+                Log.d("Queue", "Size: ${buttonQueue.size}")
             }
 
-            if(clearInputs){
-                queue.clear()
-                clearInputs = false
+            if(clearInputs.get()){
+                buttonQueue.clear()
+                clearInputs.set(false)
             }
-            else if (queueSize == 1) {
-                qteToSend.copy(queue.removeFirst())
-            } else {
-                val lastReport = queue[queueSize - 1]
-                var firstReport = queue.removeFirst().buttonReport
-
-                // We always send the first button and last axis reports
-                qteToSend.axisReport.copy((lastReport.axisReport))
-                qteToSend.buttonReport.copy(firstReport)
-
-                // We only care about the last motion inputs since a half millimeter of motion
-                // is negligible and would only serve to overload the server with too many events
-                // to process
-                qteToSend.axisReport.copy(lastReport.axisReport)
-
-                // Remove duplicates from the button report so that we only
-                // ever try to send information if something has changed between two events.
-                // --
-                // The index starts at 1 because we've already removed the first report from the
-                // queue.
-                var index = 1
-                while (index < queueSize) {
-                    var currentReport = queue[0].buttonReport
-                    if (firstReport.areEqual(currentReport)) {
-                        queue.removeFirst()
-                    }
-
-                    ++index
+            else{
+                if(buttonQueue.size > 0){
+                    qteToSend.buttonReport.copy(buttonQueue.removeFirst())
                 }
+                else{
+                    qteToSend.buttonReport.copy(lastSentReport.buttonReport)
+                }
+
+                qteToSend.axisReport.copy(currentAxis)
             }
 
             // Avoid sending the same thing multiple times to reduce bandwidth
             qteToSend.messageTimestamp = System.currentTimeMillis()
+            lastSentReport.copy(qteToSend)
             val json = toJson(qteToSend)
 
             if(debugMode){
                 Log.d("Queue", "Packet: " + json)
             }
 
-            UdpHelper.sendUdp("C" + json)
+            UdpHelper.sendUdp("C$json")
         }
     }
 

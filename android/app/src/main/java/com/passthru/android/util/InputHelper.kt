@@ -4,15 +4,15 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.widget.Button
+import com.passthru.android.util.models.AxisReport
 import com.passthru.android.util.models.ButtonReport
 import com.passthru.android.util.models.InputReport
 import java.io.Serializable
 
 class InputHelper {
-    fun convert(e: KeyEvent, immutableReport: InputReport): InputReport{
+    fun convert(e: KeyEvent, immutableReport: ButtonReport): ButtonReport{
 
-        val report = InputReport().copy(immutableReport)
-        val buttonReport = report.buttonReport
+        val buttonReport = immutableReport.clone()
 
         var buttonId = 0
         var keyHandled = true
@@ -53,14 +53,11 @@ class InputHelper {
             }
         }
 
-        return report
+        return buttonReport
     }
 
-    fun convert(e: MotionEvent, immutableReport: InputReport, historyPos: Int): InputReport{
-
-        val fullReport= InputReport().copy(immutableReport)
-        val axisReport = fullReport.axisReport
-        val buttonReport = fullReport.buttonReport
+    fun convertButtonsFromMotionEvent(e: MotionEvent, immutableReport: InputReport, historyPos: Int): ButtonReport{
+        val buttonReport = immutableReport.buttonReport.clone()
         var buttonId = 0
 
         // Check if d-pad is being pressed
@@ -87,11 +84,17 @@ class InputHelper {
         }
         // Always remove both since a rapid transition between these
         // means we may have missed deactivating one of them
-            handleAxisButton(1, buttonReport, false)
-            handleAxisButton(2, buttonReport, false)
+        handleAxisButton(1, buttonReport, false)
+        handleAxisButton(2, buttonReport, false)
         if(buttonId > 0){
             handleAxisButton(buttonId, buttonReport, true)
         }
+
+        return buttonReport
+    }
+
+    fun convert(e: MotionEvent, immutableReport: AxisReport, historyPos: Int): AxisReport{
+        val axisReport = immutableReport.clone()
 
         axisReport.axis1.x = getAxisVal(e, MotionEvent.AXIS_X, historyPos)
         axisReport.axis1.y = getAxisVal(e, MotionEvent.AXIS_Y, historyPos)
@@ -104,7 +107,7 @@ class InputHelper {
         axisReport.throttle = getAxisVal(e, MotionEvent.AXIS_THROTTLE, historyPos)
         axisReport.brake = getAxisVal(e, MotionEvent.AXIS_BRAKE, historyPos)
 
-        return fullReport
+        return axisReport
     }
 
     private fun getAxisVal(e: MotionEvent, eventKey: Int, historyPos: Int): Float {

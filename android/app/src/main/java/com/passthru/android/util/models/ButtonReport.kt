@@ -9,6 +9,12 @@ class ButtonReport : Serializable {
         return this.buttons == other.buttons
     }
 
+    fun clone(): ButtonReport {
+        val temp = ButtonReport()
+        temp.copy(this)
+        return temp
+    }
+
     fun copy(other: ButtonReport) {
         this.buttons = other.buttons
     }

@@ -28,7 +28,7 @@ object MouseDispatcher {
 
         var mrLoop = mr.clone()
         (0 until ev.historySize).forEach {i ->
-            var mrLoop = mouseHelper.convert(ev, mrLoop, i)
+            mrLoop = mouseHelper.convert(ev, mrLoop, i)
             mouseVelocity = mrLoop.velocity.clone()
         }
 
@@ -60,11 +60,11 @@ object MouseDispatcher {
         clearInputs.set(true)
     }
 
-    private var lastSentVelocity: Axis = Axis()
+    private var lastSentReport = MouseReport()
     @Synchronized fun checkAndSendInputMessage() {
         val debugMode = Globals.debugMode.get()
         var currentVelocity = mouseVelocity.clone()
-        if ((clearInputs.get() || buttonQueue.size > 0 || !currentVelocity.areEqual(lastSentVelocity)) && UdpHelper.isConnected()) {
+        if ((clearInputs.get() || buttonQueue.size > 0 || !currentVelocity.areEqual(lastSentReport.velocity)) && UdpHelper.isConnected()) {
             val mrToSend = MouseReport()
 
             if(debugMode){
@@ -80,12 +80,15 @@ object MouseDispatcher {
                     mrToSend.buttons.copy(buttonQueue.removeFirst())
                     mrToSend.click = true
                 }
+                else{
+                    mrToSend.buttons.copy(lastSentReport.buttons)
+                }
 
                 mrToSend.velocity.copy(mouseVelocity)
-                lastSentVelocity = currentVelocity
             }
 
             mrToSend.messageTimestamp = System.currentTimeMillis()
+            lastSentReport.copy(mrToSend)
             val json = toJson(mrToSend)
 
             if(debugMode){

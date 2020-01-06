@@ -12,10 +12,15 @@ class InputReport : Serializable {
                 && axisReport.areEqual(other.axisReport)
     }
 
-    fun copy(other: InputReport): InputReport{
+    fun clone(): InputReport {
+        val temp = InputReport()
+        temp.copy(this)
+        return temp
+    }
+
+    fun copy(other: InputReport){
         buttonReport.copy(other.buttonReport)
         axisReport.copy(other.axisReport)
-        return this
     }
 }
 
