@@ -10,7 +10,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.passthru.android.R
 import com.passthru.android.util.ActionDispatcher
-import com.passthru.android.util.InputDispatcher
 import com.passthru.android.util.PrefsHelper
 import com.passthru.android.util.UdpHelper
 
@@ -48,23 +47,23 @@ class ControllerFragment : Fragment() {
 
         // Setup the buttons
         connectButton = root.findViewById(R.id.btnControllerConnect)
-        BuildConnectButton()
+        buildConnectButton()
 
         disconnectButton = root.findViewById(R.id.btnControllerRemove)
-        BuildDisconnectButton()
+        buildDisconnectButton()
 
         clearButton = root.findViewById(R.id.btnControllerClear)
-        BuildClearButton()
+        buildClearButton()
 
         controlModeGroup = root.findViewById(R.id.rgControlMode)
         rbMouse = root.findViewById(R.id.rbMouse)
         rbJoypad = root.findViewById(R.id.rbJoystick)
-        BuildControlModeRadioGroup(root)
+        buildControlModeRadioGroup(root)
 
         return root
     }
 
-    private fun BuildConnectButton() {
+    private fun buildConnectButton() {
         connectButton.setOnClickListener{
             if(UdpHelper.isConnected()){
                 Toast.makeText(context, "Already connected", Toast.LENGTH_SHORT).show()
@@ -91,19 +90,19 @@ class ControllerFragment : Fragment() {
         }
     }
 
-    private fun BuildClearButton() {
+    private fun buildClearButton() {
         clearButton.setOnClickListener{
             if(!UdpHelper.isConnected()){
                 Toast.makeText(context, "Not connected", Toast.LENGTH_SHORT).show()
             }
             else{
-                InputDispatcher.clearInputs()
+                ActionDispatcher.clearInputs()
                 Toast.makeText(context, "Cleared", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun BuildDisconnectButton() {
+    private fun buildDisconnectButton() {
         disconnectButton.setOnClickListener{
             if(!UdpHelper.isConnected()) {
                 Toast.makeText(context, "Already disconnected", Toast.LENGTH_SHORT).show()
@@ -116,7 +115,7 @@ class ControllerFragment : Fragment() {
         }
     }
 
-    private fun BuildControlModeRadioGroup(root: View) {
+    private fun buildControlModeRadioGroup(root: View) {
         if(ActionDispatcher.getMode() == "Mouse"){
             rbMouse.isChecked = true
         }
