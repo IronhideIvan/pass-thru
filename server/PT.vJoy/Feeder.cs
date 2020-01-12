@@ -39,8 +39,6 @@ namespace PT.vJoyFeeder
     private int _nButtons;
     private int _contPovNumber;
     private int _discPovNumber;
-    private int _reconnectCount = 0;
-
 
     public void Connect(string deviceId)
     {
@@ -210,18 +208,15 @@ namespace PT.vJoyFeeder
     private bool TryReconnect()
     {
       int maxRecconectCount = 3;
-      if (_reconnectCount >= maxRecconectCount)
-      {
-        return false;
-      }
+      int reconnectCount = 0;
 
       _logger.Info($"Reconnecting device '{_deviceId}'...");
 
-      while (_reconnectCount < maxRecconectCount)
+      while (reconnectCount < maxRecconectCount)
       {
         try
         {
-          ++_reconnectCount;
+          ++reconnectCount;
           if (_joystick != null)
           {
             Disconnect();
@@ -234,12 +229,7 @@ namespace PT.vJoyFeeder
         }
       }
 
-      if (_reconnectCount < 3)
-      {
-        _reconnectCount = 0;
-      }
-
-      return _reconnectCount < 3;
+      return reconnectCount < 3;
     }
 
     private int GetAxisValue(float axis, long min, long max)
