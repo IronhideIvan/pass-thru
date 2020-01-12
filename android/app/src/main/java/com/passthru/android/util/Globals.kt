@@ -7,4 +7,5 @@ import java.util.concurrent.atomic.AtomicReference
 object Globals {
     var debuggerFragment: AtomicReference<DebuggerFragment?> = AtomicReference(null)
     var debugMode: AtomicBoolean = AtomicBoolean(false)
+    var dispatcherThreadLaunched = AtomicBoolean(false)
 }

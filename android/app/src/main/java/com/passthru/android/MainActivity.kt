@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity() {
     private val PREFS_FILENAME = "com.passthru.android.prefs"
     private val threadJob: Job = Job()
     private val threadScope = CoroutineScope(Dispatchers.Default + threadJob)
-    private var threadLaunched: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,8 +46,8 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences(PREFS_FILENAME, Context.MODE_PRIVATE)
         PrefsHelper.prefs = prefs
 
-        if(!threadLaunched){
-            threadLaunched = true
+        if(!Globals.dispatcherThreadLaunched.get()){
+            Globals.dispatcherThreadLaunched.set(true)
             threadScope.launch {
                 var errCount: Int = 0
                 lateinit var exception: Exception;
