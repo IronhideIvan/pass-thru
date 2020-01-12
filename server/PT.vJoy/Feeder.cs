@@ -207,29 +207,22 @@ namespace PT.vJoyFeeder
 
     private bool TryReconnect()
     {
-      int maxRecconectCount = 3;
-      int reconnectCount = 0;
-
       _logger.Info($"Reconnecting device '{_deviceId}'...");
 
-      while (reconnectCount < maxRecconectCount)
+      try
       {
-        try
+        if (_joystick != null)
         {
-          ++reconnectCount;
-          if (_joystick != null)
-          {
-            Disconnect();
-          }
-          Connect(_deviceId.ToString());
+          Disconnect();
         }
-        catch (Exception ex)
-        {
-          _logger.Error(ex.Message);
-        }
+        Connect(_deviceId.ToString());
+      }
+      catch (Exception ex)
+      {
+        _logger.Error(ex.Message);
       }
 
-      return reconnectCount < 3;
+      return _joystick.GetVJDStatus(_deviceId) == VjdStat.VJD_STAT_OWN;
     }
 
     private int GetAxisValue(float axis, long min, long max)
