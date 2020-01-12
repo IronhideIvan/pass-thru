@@ -5,7 +5,18 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": ".NET Core Launch (web)",
+      "name": "PT.Feeder",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/PT.Feeder/bin/Debug/netcoreapp2.2/PT.Feeder.dll",
+      "args": ["-t=vJoy", "-id=\"1\"", "-a=\"192.168.0.39\"", "-p=7084"],
+      "cwd": "${workspaceFolder}/PT.Feeder",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    },
+    {
+      "name": "PT.WebApi",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
