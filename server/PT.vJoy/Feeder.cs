@@ -44,12 +44,6 @@ namespace PT.vJoyFeeder
 
     public void Connect(string deviceId)
     {
-      // Validation.
-      if (_joystick != null)
-      {
-        throw new PTGenericException($"Feeder is already connected to device ID '{_deviceId}'. Disconnect the feeder first before attempting a new connection.");
-      }
-
       if (!UInt32.TryParse(deviceId, out _deviceId))
       {
         throw new PTGenericException($"Error parsing device ID '{deviceId}'. Must be a number.");
@@ -142,6 +136,16 @@ namespace PT.vJoyFeeder
       PrintDeviceSupport();
     }
 
+    public void Disconnect()
+    {
+      if (_joystick == null)
+      {
+        throw new PTGenericException("Feeder is already disconnected.");
+      }
+
+      _joystick.RelinquishVJD(_deviceId);
+    }
+
     public void Feed(InputReport genericReport)
     {
       // Validation
@@ -216,6 +220,10 @@ namespace PT.vJoyFeeder
         try
         {
           ++_reconnectCount;
+          if (_joystick != null)
+          {
+            Disconnect();
+          }
           Connect(_deviceId.ToString());
         }
         catch (Exception ex)
