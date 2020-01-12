@@ -215,6 +215,8 @@ namespace PT.vJoyFeeder
         return false;
       }
 
+      _logger.Info($"Reconnecting device '{_deviceId}'...");
+
       while (_reconnectCount < maxRecconectCount)
       {
         try
