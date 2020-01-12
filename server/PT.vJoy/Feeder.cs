@@ -271,7 +271,7 @@ namespace PT.vJoyFeeder
       output += $"Number of buttons\t\t{_nButtons}\n";
       output += $"Numner of Continuous POVs\t{_contPovNumber}\n";
       output += $"Numner of Descrete POVs\t\t{_discPovNumber}\n";
-      output += $"Axis | Available | Min | Max";
+      output += $"Axis | Available | Min | Max\n";
       output += $"Axis X | {_axisX} | {_axisMinX} | {_axisMaxX} \n";
       output += $"Axis Y | {_axisY} | {_axisMinY} | {_axisMaxY} \n";
       output += $"Axis Z | {_axisZ} | {_axisMinZ} | {_axisMaxZ} \n";
