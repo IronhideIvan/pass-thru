@@ -16,7 +16,7 @@ object ActionDispatcher {
     fun dispatchMotionEvent(ev: MotionEvent): Boolean {
         var handled: Boolean
 
-        if(inputMode == "Mouse"){
+        if (inputMode == "Mouse"){
             handled = MouseDispatcher.dispatchMotionEvent(ev) != null
         }
         else{
@@ -29,7 +29,7 @@ object ActionDispatcher {
     fun dispatchKeyEvent(event: KeyEvent): Boolean {
         var handled: Boolean
 
-        if(inputMode == "Mouse"){
+        if (inputMode == "Mouse"){
             handled = MouseDispatcher.dispatchKeyEvent(event) != null
         }
         else{
