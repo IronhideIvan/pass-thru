@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading;
-
+//
 namespace PT.vJoyFeeder
 {
   public class Feeder : IInputFeeder
